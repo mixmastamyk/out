@@ -2,8 +2,8 @@
 Out
 ===========
 
-*Out is a significantly simplified logger for Python3,
-while a bit more powerful and fun in a few minor areas.*
+*Out is a simplified logger for Python3,
+while a bit more powerful and fun in a few areas.*
 
 Fun Features
 --------------------------
@@ -18,7 +18,7 @@ Concise as hell::
     >>> out.configure(foo='bar')
 
 
-With nice colors.
+(Imagine with nice colors.)
 
 
 Background

@@ -27,7 +27,8 @@ if sys.version_info.major < 3:
 
 setup(
     name                = 'out',
-    description         = 'Simple, fun take on logging for non-huge projects.',
+    description         = 'Simple, fun take on logging for non-huge projects.'
+                          'Gets "outta" the way.',
     author_email        = 'mixmastamyk@github.com',
     author              = 'Mike Miller',
     keywords            = keywords,
@@ -35,7 +36,7 @@ setup(
     long_description    = slurp('readme.rst'),
     packages            = ('out',),
     url                 = 'https://github.com/mixmastamyk/out',
-    version             = '0.50',
+    version             = '0.52',
 
     extras_require      = extras_require,
     install_requires    = install_requires,

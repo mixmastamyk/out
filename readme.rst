@@ -2,28 +2,26 @@
 Out
 ===========
 
-*Out is a logger that gets 'outta' the way.*
+*Out is a logger that gets "outta" the way.*
 
 Simplified logging, though a bit more powerful and fun in a few areas.
 
 
-TODO:
+.. ~ TODO:
 
-- Print configuration
+.. ~ - Print configuration
 
--  use console for fx
-    - with color
+.. ~ -  use console for fx
+    .. ~ - with color
 
-'format': ' %(levelname)-7.7s %(name)s/%(funcName)s:%(lineno)s'
-          ' %(message)s'
+.. ~ 'format': ' %(levelname)-7.7s %(name)s/%(funcName)s:%(lineno)s'
+          .. ~ ' %(message)s'
 
-'format': '%(levelname)-7.7s'
-          '[38;5;242m%(name)s/'
-          '[38;5;245m%(funcName)s:'
-          '[32m%(lineno)s[0m'
-          ' %(message)s',
-
-
+.. ~ 'format': '%(levelname)-7.7s'
+          .. ~ '[38;5;242m%(name)s/'
+          .. ~ '[38;5;245m%(funcName)s:'
+          .. ~ '[32m%(lineno)s[0m'
+          .. ~ ' %(message)s',
 
 
 Fun Features

@@ -15,7 +15,7 @@ from .themes import theme_maps as _theme_maps
 _out_file = sys.stderr
 _is_a_tty = is_a_tty(_out_file)
 
-# allow string as well as constant access:
+# Allow string as well as constant access, more levels are added below:
 level_map = {
     'debug': logging.DEBUG,
     'info': logging.INFO,
@@ -58,6 +58,21 @@ class Logger(logging.Logger):
 
             else:
                 setattr(self, kwarg, value)
+
+    def log_config(self):
+        ''' Log the current configuration. '''
+        level = self.level
+        self.debug('Logging config:')
+        self.debug('/ name: {}, id: {}', self.name, id(self))
+        self.debug('  .level: %s (%s)', level_map_int[level], level)
+        self.debug('  .default_level: %s', self.default_level)
+        for i, handler in enumerate(self.handlers):
+            fmtr = handler.formatter
+            self.debug('  + Handler: %s %r', i, handler)
+            self.debug('    + Formatter: %r', fmtr)
+            self.debug('      .style: %r', fmtr._style)
+            self.debug('      .datefmt: %r', fmtr.datefmt)
+            self.debug('      .msgfmt: {!r}', fmtr._fmt)
 
     def setLevel(self, level):
 
@@ -113,12 +128,17 @@ add_logging_level('TRACE', 7)
 add_logging_level('NOTE', 27)
 add_logging_level('EXCEPT', logging.ERROR + 3, 'exc')
 add_logging_level('FATAL', logging.FATAL)
-out.setLevel('note')
+level_map_int = {
+    val: key
+    for key, val in level_map.items()
+}
+out.warn = out.warning  # fix warn
+out.setLevel('info')  # lowered to info - note didn't show up by default.
+
 
 # handler/formatter
 _handler = logging.StreamHandler(stream=_out_file)
 _theme = _theme_maps['interactive' if _is_a_tty else 'production']
-#~ print('**#', _is_a_tty, _out_file, _theme)
 _formatter = ColorFormatter(tty=_is_a_tty, **_theme)
 _formatter.default_msec_format = '%s.%03d'
 _handler.setFormatter(_formatter)

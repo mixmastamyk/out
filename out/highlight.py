@@ -8,10 +8,12 @@ try:
     from pygments import highlight
     from pygments.lexers.python import Python3Lexer
     from pygments.formatters import TerminalFormatter
-    from pygments.formatters import Terminal256Formatter
+    #~ from pygments.formatters import Terminal256Formatter
 
     from pygments.token import (Keyword, Name, Comment, String, Error,
-                                Number, Operator, Generic, Token, Punctuation)
+                                Number, Operator, Generic, Token,
+                                #~ Punctuation,
+                                )
 
     # Pygments highlighting
     TERMINAL_COLORS = {

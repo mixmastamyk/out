@@ -31,18 +31,6 @@
 
         # added:
         {color}{icon}{off}  Color and icon support.
-
-
-    TODO:
-
-        'format': ' %(levelname)-7.7s %(name)s/%(funcName)s:%(lineno)s'
-                  ' %(message)s'
-
-        'format': '  %(icon)s %(levelname)-7.7s[0m ' # %(levelno)s
-                  '[38;5;242m%(name)s/'
-                  '[38;5;245m%(funcName)s:'
-                  '[32m%(lineno)s[0m'
-                  ' %(message)s',
 '''
 import logging
 
@@ -83,7 +71,10 @@ class ColorFormatter(logging.Formatter):
         if self.usesTime():
             record.asctime = self.formatTime(record, self.datefmt)
 
-        message = record.getMessage()  # renders msg part with args
+        try:  # Allow {} style - need a faster way to determine this:
+            message = record.getMessage()  # renders msg part with args
+        except TypeError as err:
+            message = record.msg.format(*record.args)
 
         # decide to highlight w/ pygments
         if pygments and self._is_a_tty:

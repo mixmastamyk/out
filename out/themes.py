@@ -56,7 +56,7 @@ icon_maps = dict(
         EXCEPT   = '! ',
         CRITICAL = '!!',
         FATAL    = '!!',
-        NOTSET   = '_',
+        NOTSET   = '_ ',
     ),
     circled = dict(
         TRACE    = '🅣 ',
@@ -125,7 +125,7 @@ theme_maps = dict(
     production = dict(
         color_map = None,
         icon_map = icon_maps['symbol'],
-        fmt='{asctime} {color}{icon}{off}{levelname:<7} {message}',
+        fmt='{asctime}.{msecs:03.0f} {color}{icon}{off}{levelname:<7} {message}',
         datefmt='%Y-%m-%d %H:%M:%S',
     )
 )

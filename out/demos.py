@@ -1,6 +1,6 @@
 import out
 
-import test_mod
+import test_mod; test_mod # pyflakes
 
 #~ ltd = out
 #~ while ltd is not None:
@@ -39,11 +39,15 @@ print()
 out.configure(level='trace')
 test_it()
 
+out.log_config()
 
-print('With msgfmt configured:')
-print()
-out.configure(msgfmt='{asctime} {name} {message}')
-test_it(False)
+#~ print('With msgfmt configured:')
+#~ print()
+#~ out.configure(msgfmt='{asctime} {name} {message}')
+#~ test_it(False)
 
-print('=========== APP OUTPUT ===========')
-print('=========== APP OUTPUT ===========')
+#~ print('=========== APP OUTPUT ===========')
+#~ print('=========== APP OUTPUT ===========')
+
+
+

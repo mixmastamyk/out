@@ -20,6 +20,8 @@ section below.
           .. ~ '[32m%(lineno)s[0m'
           .. ~ ' %(message)s',
 
+.. ~ HOWTO with Pygments
+
 
 Fun Features
 --------------------------
@@ -42,7 +44,7 @@ Imagine with nice ANSI colors. 😁
 Out has simple themes for message formats, styles, and icons.
 Not to worry,
 out is more conservative in production mode,
-which is turned on automatically by redirecting ``stderr``::
+turned on automatically by redirecting ``stderr``::
 
     ⏵ python3 script.py |& cat
     2018-09-10 17:18:19.123 ✗ ERROR  Kerblooey!
@@ -82,9 +84,9 @@ Colors, Unicode, Icons
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Colors are ready to go in interactive mode,
-  and turn off automatically when redirected.
+  and turn off automatically when output is redirected.
 
-- Unicode symbols for "icons" are used throughout for increased readability and
+- Unicode symbols are used throughout as "icons" for increased readability and
   conciseness.
 
   They are/should be padded to two characters due to some glyphs being wide.
@@ -122,7 +124,7 @@ These are commonly requested additions commonly poo-poo'd by core devs:
   Think ``FileNotFound`` vs. ``Exception``.
 
 - ``FATAL``, a renaming of ``CRITICAL``,
-  since that name is quite long, pushes alignment,
+  since that name is long, pushes alignment,
   and does not capture message intent as well as fatal.
   Std-lib already allows this but still labels it critical on output.
   Out does not.
@@ -193,11 +195,11 @@ package is a good choice to generate ANSI styles:
     from console import fg, bg, fx
     import out
 
-    bold_note = dict(
-        NOTE=str(fg.cyan + fx.bold + fx.reverse),  # etc
+    blue_note = dict(
+        NOTE=str(fg.lightblue + fx.bold + fx.reverse),  # etc
     )
-    out.configure(style=bold_note)
-    out.note('I pity da fool!')
+    out.configure(style=blue_note)
+    out.note('John Coltrane')
 
 A full theme is the whole kit together in a mapping—\
 styles, icons, and templates:
@@ -229,7 +231,7 @@ Or by setting a custom mapping:
 .. code-block:: python
 
     >>> out.configure(
-            theme=interactive,
+            theme=interactive,  # or, just icons:
             icons=dict(DEBUG='• ', INFO='✓ ', WARNING='⚠ ', ) # …
         )
 
@@ -258,9 +260,8 @@ Full themes:
     When there are conflicting arguments to the ``configure`` method,
     the last specified will win.
     This requires > Python 3.6, due to ordered keyword args.
-
-    Below that version it is not recommended since keyword order will be
-    undefined.
+    Below this version it is not recommended to do this since keyword order
+    will be undefined.
 
 
 Tips
@@ -355,7 +356,7 @@ Additionally, logging tools have also become standardized over time,
 handling cross-language and cross-platform messages.
 Imagine a pipeline where log events are routed and multiple tools can be
 plugged in or out as needed—\
-company-wide rather than language-wide.
+company-wide rather than language or app-wide.
 
 So, unless you have unique requirements,
 there's no need to reimplement ``logrotate``, ``syslog``, ``systemd``, and
@@ -368,7 +369,7 @@ It uses Python's standard logging infrastructure by default,
 so is still quite flexible when need be.
 
 Well, you've heard this before.
-However, *out* tries a bit harder create an easy to use interface,
+However, *out* tries a bit harder create a fun, easy-to-use interface,
 as hopefully demonstrated above.
 
 Name

@@ -8,8 +8,8 @@ import traceback
 
 from console.detection import is_a_tty
 
-from .format import ColorFormatter
-from .themes import theme_maps as _theme_maps
+from .format import ColorFormatter as _ColorFormatter
+from .themes import themes as _themes, icons as _icons, styles as _styles
 
 
 _out_file = sys.stderr
@@ -56,6 +56,22 @@ class Logger(logging.Logger):
             elif kwarg == 'stream':
                 self.handlers[0].stream = value
 
+            elif kwarg == 'theme':
+                if type(value) is str:
+                    value = _themes[value]
+                self.handlers[0].setFormatter(
+                    _ColorFormatter(tty=_is_a_tty, **value)
+                )
+            elif kwarg == 'icons':
+                if type(value) is str:
+                    value = _icons[value]
+                self.handlers[0].formatter.icons = value
+
+            elif kwarg == 'style':
+                if type(value) is str:
+                    value = _styles[value]
+                self.handlers[0].formatter.style = value
+
             else:
                 setattr(self, kwarg, value)
 
@@ -65,7 +81,8 @@ class Logger(logging.Logger):
         self.debug('Logging config:')
         self.debug('/ name: {}, id: {}', self.name, id(self))
         self.debug('  .level: %s (%s)', level_map_int[level], level)
-        self.debug('  .default_level: %s', self.default_level)
+        self.debug('  .default_level: %s (%s)',
+                        level_map_int[self.default_level], self.default_level)
         for i, handler in enumerate(self.handlers):
             fmtr = handler.formatter
             self.debug('  + Handler: %s %r', i, handler)
@@ -138,9 +155,9 @@ out.setLevel('info')  # lowered to info - note didn't show up by default.
 
 # handler/formatter
 _handler = logging.StreamHandler(stream=_out_file)
-_theme = _theme_maps['interactive' if _is_a_tty else 'production']
-_formatter = ColorFormatter(tty=_is_a_tty, **_theme)
-_formatter.default_msec_format = '%s.%03d'
+_theme = _themes['interactive' if _is_a_tty else 'production']
+_formatter = _ColorFormatter(tty=_is_a_tty, **_theme)
+#~ _formatter.default_msec_format = '%s.%03d'
 _handler.setFormatter(_formatter)
 out.addHandler(_handler)
 

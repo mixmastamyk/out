@@ -2,17 +2,14 @@
 Out
 ===========
 
-*Out is a logger that gets "outta" the way.*
+Simplified logging with a touch of fun—\
+out gets "outta" the way.
 
-Simplified logging, though a bit more powerful and fun in a few areas.
-
+Why's are covered in the
+background_
+section below.
 
 .. ~ TODO:
-
-.. ~ - Print configuration
-
-.. ~ -  use console for fx
-    .. ~ - with color
 
 .. ~ 'format': ' %(levelname)-7.7s %(name)s/%(funcName)s:%(lineno)s'
           .. ~ ' %(message)s'
@@ -27,12 +24,13 @@ Simplified logging, though a bit more powerful and fun in a few areas.
 Fun Features
 --------------------------
 
-Concise as hell:
+Concise as hell,
+a singleton ready to log on import.
+In interactive mode:
 
 .. code-block:: python
 
     >>> import out
-
 
     >>> out('And away we go…')  # configurable default level
     🅸 And away we go…
@@ -41,55 +39,76 @@ Concise as hell:
     🆆 Danger Will Robinson!
 
 Imagine with nice ANSI colors. 😁
-Out has themes for message formats, colors, and icons.
-This is the default theme in interactive mode.
-Out is more conservative in production mode,
-turned on automatically by redirecting output::
+Out has simple themes for message formats, styles, and icons.
+Not to worry,
+out is more conservative in production mode,
+which is turned on automatically by redirecting ``stderr``::
 
     ⏵ python3 script.py |& cat
-    2018-09-10 17:18:19.123 ✗ ERROR  kaboom
+    2018-09-10 17:18:19.123 ✗ ERROR  Kerblooey!
 
-Obvious defaults, yet easy to configure!
+Obvious defaults, and easy to configure!
 
 .. code-block:: python
 
     >>> out.configure(
-            level='debug',          # or int
-            default_level='info',   # w/o func
+            level='note',           # or int
+            default_level='info',   # out('…')
             datefmt='…',            # strftime
             msgfmt='…',             # see below
-            stream=file,            # stdout
-            theme=name,             # overall
-            icon_theme={},
-            color_theme={},
+            stream=file,            # stderr
+            theme=name|{},
+            icons=name|{},          # see below
+            style=name|{},          # about themes
         )
 
 
 .. note::
 
-    This is a logging simplification library for *applications.*
+    This is a library to simplify logging for *applications.*
 
-    Libraries should continue on as they always have::
+    Libraries should continue on as they always have:
+
+    .. code-block:: python
 
         import logging
 
         log = logging.getLogger(__name__)
-
         # do not configure loggers, just use:
         log.debug('foo')
 
 
+Colors, Unicode, Icons
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Levels
+- Colors are ready to go in interactive mode,
+  and turn off automatically when redirected.
+
+- Unicode symbols for "icons" are used throughout for increased readability and
+  conciseness.
+
+  They are/should be padded to two characters due to some glyphs being wide.
+  Width can be looked up, e.g.::
+
+    >>> unicodedata.east_asian_width('💀')
+    'W'
+
+- Syntax highlighting of data structures (oft parsed from JSON APIs) is
+  available too, via Pygments.
+
+
+Levels+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 While the
 `standard levels <https://docs.python.org/3/library/logging.html#levels>`_
-continue to exist,
-a few additions and slight modifications have been made.
+continue to exist
+(``NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICAL``).
+A few additions and slight modifications have been made.
 These are commonly requested additions commonly poo-poo'd by core devs:
 
-- ``TRACE``, for absurdly voluminous data, perhaps network traffic.
+- ``TRACE``, for absurdly voluminous data, perhaps system calls or network
+  traffic.
 
 - ``NOTE``, for **positive** messages
   that should/must be shown by default---\
@@ -99,52 +118,14 @@ These are commonly requested additions commonly poo-poo'd by core devs:
   | ``NOTE`` - Token is ABCXYZ, rather than…
   | ``WARNING`` - Token is ABCXYZ.
 
-- ``EXCEPT``, to differentiate the expected from unexpected errors.
+- ``EXCEPT``, to differentiate expected from unexpected errors.
+  Think ``FileNotFound`` vs. ``Exception``.
 
 - ``FATAL``, a renaming of ``CRITICAL``,
-  since that name is too long to align and does not capture the intent well
-  enough.
-  Std-lib already allows this but still labels it critical.
+  since that name is quite long, pushes alignment,
+  and does not capture message intent as well as fatal.
+  Std-lib already allows this but still labels it critical on output.
   Out does not.
-
-
-Colors, Unicode, Icons
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-- Colors are ready to go in interactive mode,
-  and turn off automatically when redirected.
-
-- Syntax highlighting of data structures (oft parsed from JSON APIs) is
-  available too, via Pygments.
-
-- Unicode symbols for "icons" are used throughout for increased readability and
-  conciseness.
-
-  They are/should be padded to two characters due to some being wide.
-  (Custom characters can be looked up with ``unicodedata.east_asian_width()``.)
-
-
-.. ~ widths
-.. ~ ++++++++
-
-.. ~ ::
-
-    .. ~ import unicodedata
-
-    .. ~ >>> unicodedata.east_asian_width('a')
-    .. ~ 'Na'
-
-    .. ~ >>> unicodedata.east_asian_width('愛')
-    .. ~ 'W'
-
-    .. ~ >>> unicodedata.east_asian_width('💀')
-    .. ~ 'W'
-
-    .. ~ >>> unicodedata.east_asian_width('💣')
-    .. ~ 'W'
-
-    .. ~ >>> unicodedata.east_asian_width('Ⓓ')
-    .. ~ 'A'
 
 
 
@@ -168,40 +149,118 @@ Most fields are found in the Python
     {module}            Module (name portion of filename)
     {name}              Name of the logger (logging channel)
 
+Use of
 ``out.format.ColorFormatter`` adds these additional fields::
 
-    {color}{icon}{off}  Color and icon support.
+    {on}{icon}{off}     Style and icon support.
 
 
-DateTime
-+++++++++++
+DateTime Format
+++++++++++++++++++
 
-These continue to be configuable with
+These continue to be configuable via
 `strftime <https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior>`_
-syntax.
+syntax and the
+``datefmt`` keyword to ``configure``.
 
 
 Themes
 ~~~~~~~~~~~~~~~~~~
 
-
-
-Note the two-character wide spacing, due to some Unicode glyphs being wide:
+Themes are simply dictionaries with one entry per level:
 
 .. code-block:: python
 
-    >>> from out.themes import icon_maps
+    >>> from out.themes import themes, icons, styles
 
-    >>> icon_maps['circled']
-    {'TRACE': '🅣 ', 'DEBUG': '🅓 ', 'INFO': '🅘 ', 'WARNING': '🅦 ',
-     'NOTE': '🅝 ', 'ERROR': '🅔 ', 'EXCEPT': '🅧 ', 'CRITICAL': '🅕 ',
-     'FATAL': '🅕 ', 'NOTSET': '🅝 '}
+    >>> icons['circled']  # Unicode
+    {'TRACE': '🅣', 'DEBUG': '🅓', 'INFO': '🅘', 'WARNING': '🅦',
+     'NOTE': '🅝', 'ERROR': '🅔', 'EXCEPT': '🅧', 'CRITICAL': '🅕',
+     'FATAL': '🅕', 'NOTSET': '🅝'}
 
-    >>> icon_maps['symbol']
-    {'TRACE': '• ', 'DEBUG': '• ', 'INFO': '✓ ', 'WARNING': '⚠ ',
-     'NOTE': '🎗 ', 'ERROR': '✗ ', 'EXCEPT': '💣', 'CRITICAL': '💀',
-     'FATAL': '💀', 'NOTSET': '␀ '}
+    >>> styles['blink']  # ANSI escapes
+    {'TRACE': '\x1b[35m', 'DEBUG': '\x1b[34m', 'INFO': '\x1b[32m',
+     'WARNING': '\x1b[93m', 'NOTE': '\x1b[96m', 'ERROR': '\x1b[31m',
+     'EXCEPT': '\x1b[91m', 'CRITICAL': '\x1b[97m',
+     'FATAL': '\x1b[97;5m', 'NOTSET': '\x1b[0m'}
 
+The
+`console <https://mixmastamyk.bitbucket.io/console/>`_
+package is a good choice to generate ANSI styles:
+
+.. code-block:: python
+
+    from console import fg, bg, fx
+    import out
+
+    bold_note = dict(
+        NOTE=str(fg.cyan + fx.bold + fx.reverse),  # etc
+    )
+    out.configure(style=bold_note)
+    out.note('I pity da fool!')
+
+A full theme is the whole kit together in a mapping—\
+styles, icons, and templates:
+
+.. code-block:: python
+
+    >>> interactive = {
+     'style': {},  # level:value mapping, see above
+     'icons': {},  # level:value
+     'fmt': '{asctime} {icon} {message}',  # message format
+     'datefmt': '%H:%M:%S',  # date format,
+    }
+
+Using Themes
+++++++++++++++
+
+In the ``configure`` method of the out logger,
+to use a theme from the themes module,
+simply specify one by name:
+
+.. code-block:: python
+
+    >>> out.configure(
+            theme='production',
+        )
+
+Or by setting a custom mapping:
+
+.. code-block:: python
+
+    >>> out.configure(
+            theme=interactive,
+            icons=dict(DEBUG='• ', INFO='✓ ', WARNING='⚠ ', ) # …
+        )
+
+A few themes are bundled:
+
+Icons:
+    ascii
+    ascii_symbol
+    circled
+    circled_lower
+    rounded
+    symbol
+
+Styles:
+    norm
+    bold
+    blink (on fatal error)
+
+Full themes:
+    interactive
+    production
+
+
+.. note::
+
+    When there are conflicting arguments to the ``configure`` method,
+    the last specified will win.
+    This requires > Python 3.6, due to ordered keyword args.
+
+    Below that version it is not recommended since keyword order will be
+    undefined.
 
 
 Tips
@@ -209,10 +268,11 @@ Tips
 
 - By default the logger prints to ``stderr``.
   The reason being that when used in an interactive script normal application
-  output can be segregated from log messages during redirection.
-  Configurable with the ``stream`` keyword to ``.configure()``.
+  output may be easily segregated from log messages during redirection.
 
-- Upgrading a long script from ``print()``::
+  Configurable via the ``stream`` keyword to ``.configure()``.
+
+- Upgrading a long script from ``print()`` is easy::
 
     import out
 
@@ -225,15 +285,35 @@ Tips
 
   A lot of code now doesn't need to change.
 
-- Want to keep your complex configuration but use the ``ColorFormatter`` class
-  and themes in your own project?
+.. ~ - Want to keep your complex configuration but use the ``ColorFormatter`` class
+  .. ~ and themes in your own project?
+
+- The ``ColorFormatter`` class can be used in your own project:
 
   .. code-block:: python
 
     >>> from out.format import ColorFormatter
 
     >>> cf = ColorFormatter()
+    >>> handler.setFormatter(cf)
 
+- To print the logging configuration:
+
+  .. code-block:: python
+
+    >>> out.log_config()
+    🅳  Logging config:
+    🅳  / name: root, id: 139973461370360
+    🅳    .level: trace (7)
+    🅳    .default_level: info (20)
+    🅳    + Handler: 0 <StreamHandler <stderr> (NOTSET)>
+    🅳      + Formatter: <out.format.ColorFormatter object at 0x7f4e1c65efd0>
+    🅳        .style: <logging.StrFormatStyle object at 0x7f4e1c65ef28>
+    🅳        .datefmt: '%H:%M:%S'
+    🅳        .msgfmt: '  {on}{icon}{off} {message}'
+
+
+.. _background:
 
 Background
 --------------------------
@@ -261,10 +341,8 @@ for portability:
     the foreground of their terminal to observe the app’s behavior.
 
 
-Imagine a pipeline where log events are routed and multiple tools can be
-plugged in or out as needed.
 Therefore,
-for most(?) applications,
+for many (if not most) applications,
 all the complexity and mumbo-jumbo in the logging package documentation about
 multiple loggers with different levels, different handlers, formatters,
 filters,
@@ -275,25 +353,33 @@ and can still be helpful, perhaps on Windows.
 
 Additionally, logging tools have also become standardized over time,
 handling cross-language and cross-platform messages.
+Imagine a pipeline where log events are routed and multiple tools can be
+plugged in or out as needed—\
+company-wide rather than language-wide.
+
 So, unless you have unique requirements,
 there's no need to reimplement ``logrotate``, ``syslog``, ``systemd``, and
 proprietary metrics tools in every programming language.
-Just blast those logs to stdout/stderr and get outta the way!
+Just blast those logs to stdout/stderr and get logging *outta* the way!
 
-Enter the *out* project.
-It's ready to start logging on import already.
-Out uses Python's standard logging infrastructure by default,
+Enter the ``out`` project.
+It's ready to start logging from the get go.
+It uses Python's standard logging infrastructure by default,
 so is still quite flexible when need be.
 
 Well, you've heard this before.
-However, *out* tries a bit harder create an elegant interface.
+However, *out* tries a bit harder create an easy to use interface,
+as hopefully demonstrated above.
+
+Name
+~~~~~~~
 
 Regarding the name,
-of course wanted to pick something along the lines of ``log`` but all
-variations are long gone on PyPI.
+well of course would have like to pick something along the lines of ``log`` but
+all variations are long gone on PyPI.
 ``out()`` is a name I've often used over the years as a poor-man's logger—\
 really a functional wrapper around ``print``,
 until I could get around to adding proper logging.
 Now we can continue the tradition.
-The name is short, simple, conceptually fits,
+The name is short, simple, and conceptually fits,
 if a little bland.

@@ -30,14 +30,15 @@
                                 the record is emitted
 
         # added:
-        {color}{icon}{off}  Color and icon support.
+        {on}…{off}          Toggles level-specific style (colors, etc) support.
+        {icon}              Level-specific icon.
 '''
 import logging
 
 from console.style import fx
 
 from .highlight import pygments, highlight, lex, fmt
-from .themes import color_maps, icon_maps
+import out.themes as _themes
 
 
 _end = str(fx.end)
@@ -48,18 +49,20 @@ class ColorFormatter(logging.Formatter):
     ''' Colors the level-name of a log message according to the level.
 
     '''
+    default_msec_format = '%s.%03d'  # use period decimal point
+
     def __init__(self,
-                 color_map=None,
-                 datefmt=None,
                  fmt=None,
+                 datefmt=None,
                  highlight=True,
-                 icon_map=None,
+                 icons=None,
+                 style=None,
                  template_style='{',
                  tty=True,
                 ):
         self._is_a_tty = tty
-        self.color_map = color_map if color_map else color_maps['norm']
-        self.icon_map = icon_map if icon_map else icon_maps['rounded']
+        self.style = style if style else _themes.style['norm']
+        self.icons = icons if icons else _themes.icons['rounded']
 
         super().__init__(fmt=fmt, datefmt=datefmt, style=template_style)
 
@@ -90,8 +93,8 @@ class ColorFormatter(logging.Formatter):
                     break  # once thanks
 
         record.message = message
-        record.color = self.color_map.get(levelname, '')
-        record.icon = self.icon_map.get(levelname, '')
+        record.on = self.style.get(levelname, '')
+        record.icon = self.icons.get(levelname, '')
         record.off = _end
         s = self.formatMessage(record)
 

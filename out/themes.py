@@ -8,7 +8,7 @@
 from console import fg, fx
 
 
-icon_maps = dict(
+icons = dict(
 
     symbol = dict(
         TRACE    = '• ',
@@ -86,7 +86,7 @@ icon_maps = dict(
 
 _fatal_clr = fg.lightwhite
 
-color_maps = dict(
+styles = dict(
     norm = dict(
         TRACE    = str(fg.purple),
         DEBUG    = str(fg.blue),
@@ -110,22 +110,26 @@ color_maps = dict(
         CRITICAL = str(_fatal_clr + fx.bold),
         FATAL    = str(_fatal_clr + fx.bold),
         NOTSET   = str(fx.end),
-    )
+    ),
 )
+_blink = styles['norm'].copy()
+_blink['FATAL'] = str(_fatal_clr + fx.blink)
+styles['blink'] = _blink
+
 
 # these are full themes, colors, icons, msg and date formats
-theme_maps = dict(
+themes = dict(
     interactive = dict(
-        color_map = color_maps['norm'],
-        icon_map = icon_maps['rounded'],
-        fmt='  {color}{icon}{off} {message}',
+        style = styles['bold'],
+        icons = icons['rounded'],
+        fmt='  {on}{icon}{off} {message}',
         datefmt='%H:%M:%S',
     ),
 
     production = dict(
-        color_map = None,
-        icon_map = icon_maps['symbol'],
-        fmt='{asctime}.{msecs:03.0f} {color}{icon}{off}{levelname:<7} {message}',
+        style = None,
+        icons = icons['symbol'],
+        fmt='{asctime}.{msecs:03.0f} {on}{icon} {levelname:<7}{off} {message}',
         datefmt='%Y-%m-%d %H:%M:%S',
     )
 )

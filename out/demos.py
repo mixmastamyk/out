@@ -49,5 +49,3 @@ out.log_config()
 #~ print('=========== APP OUTPUT ===========')
 #~ print('=========== APP OUTPUT ===========')
 
-
-

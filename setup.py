@@ -28,7 +28,7 @@ if sys.version_info.major < 3:
 setup(
     name                = 'out',
     description         = 'Simple, fun take on logging for non-huge projects.'
-                          'Gets "outta" the way.',
+                          ' Gets "outta" the way.',
     author_email        = 'mixmastamyk@github.com',
     author              = 'Mike Miller',
     keywords            = keywords,

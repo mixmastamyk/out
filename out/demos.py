@@ -1,17 +1,18 @@
 import out
 
-import test_mod; test_mod # pyflakes
+import test_mod; test_mod  # pyflakes
 
 #~ ltd = out
 #~ while ltd is not None:
     #~ print(f'  logger: {ltd.name}, level:{ltd.level}, id:{id(ltd)}, {ltd.handlers}')
     #~ ltd = ltd.parent
 
+
 def test_it(full=True):
 
     out('no explicit level')
     out.trace('trace msg: %s', 'Absurdly voluminous details…')
-    out.debug('debug message: %s', {'data': [None, True, False, 123]})
+    out.debug('debug message')
     out.info('info message - Normal feedback')
     out.note('note message - Important positive feedback to remember.')
     out.warn('warn message - Something to worry about.')
@@ -36,10 +37,29 @@ def test_it(full=True):
 
 #~ print('With level TRACE:')
 print()
-out.configure(level='trace')
+out.configure(
+    level='trace',
+    lexer='json',
+)
+out.debug('debug message: JSON {"data": [null, true, false, 123]}')
+
+out.configure(
+    lexer='python3',
+)
+out.note('debug message: PyON %s', {'data': [None, True, False, 123]})
 test_it()
 
 out.log_config()
+
+
+print('Set to plain theme, with std formatter for speed:\n')
+out.configure(
+    theme='plain',
+)
+out('no explicit level')
+out.trace('trace msg: %s', 'Absurdly voluminous details…')
+out.debug('debug message')
+
 
 #~ print('With msgfmt configured:')
 #~ print()
@@ -48,4 +68,3 @@ out.log_config()
 
 #~ print('=========== APP OUTPUT ===========')
 #~ print('=========== APP OUTPUT ===========')
-

@@ -58,10 +58,19 @@ class Logger(logging.Logger):
 
             elif kwarg == 'theme':
                 if type(value) is str:
-                    value = _themes[value]
-                self.handlers[0].setFormatter(
-                    _ColorFormatter(tty=_is_a_tty, **value)
-                )
+                    theme = _themes[value]
+                    if value == 'plain':
+                        fmtr =  logging.Formatter(**theme, style='{')
+                    else:
+                        fmtr =  _ColorFormatter(tty=_is_a_tty, **theme)
+                elif type(value) is dict:
+                    if 'style' in value or 'icons' in value:
+                        fmtr =  _ColorFormatter(tty=_is_a_tty, **theme)
+                    else:
+                        fmtr =  logging.Formatter(**theme, style='{')
+
+                self.handlers[0].setFormatter(fmtr)
+
             elif kwarg == 'icons':
                 if type(value) is str:
                     value = _icons[value]
@@ -71,6 +80,9 @@ class Logger(logging.Logger):
                 if type(value) is str:
                     value = _styles[value]
                 self.handlers[0].formatter.style = value
+
+            elif kwarg == 'lexer':
+                self.handlers[0].formatter.set_lexer(value)
 
             else:
                 setattr(self, kwarg, value)
@@ -87,9 +99,10 @@ class Logger(logging.Logger):
             fmtr = handler.formatter
             self.debug('  + Handler: %s %r', i, handler)
             self.debug('    + Formatter: %r', fmtr)
-            self.debug('      .style: %r', fmtr._style)
+            self.debug('      fmt_style: %r', fmtr._style)
+            self.debug('      lexer: %r', fmtr._lexer)
             self.debug('      .datefmt: %r', fmtr.datefmt)
-            self.debug('      .msgfmt: {!r}', fmtr._fmt)
+            self.debug('      .msgfmt: %r', fmtr._fmt)
 
     def setLevel(self, level):
 
@@ -138,6 +151,7 @@ def add_logging_level(name, value, method_name=None):
 
 # re-configure root logger
 out = logging.getLogger()   # root
+out.name = 'main'
 out.__class__ = Logger      # one way to add call()
 
 # odd level numbers chosen to avoid commonly configured variations

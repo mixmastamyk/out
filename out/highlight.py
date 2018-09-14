@@ -4,9 +4,8 @@
 '''
 
 try:
-    import pygments
     from pygments import highlight
-    from pygments.lexers.python import Python3Lexer
+    from pygments.lexers import get_lexer_by_name
     from pygments.formatters import TerminalFormatter
     #~ from pygments.formatters import Terminal256Formatter
 
@@ -52,8 +51,7 @@ try:
         Error:              ('_red_',      '_red_'),
     }
 
-    lex = Python3Lexer()
-    fmt = TerminalFormatter(colorscheme=TERMINAL_COLORS)
+    term_formatter = TerminalFormatter(colorscheme=TERMINAL_COLORS)
 
 except ImportError:
-    pygments, highlight, lex, fmt = None
+    highlight = term_formatter = get_lexer_by_name = None

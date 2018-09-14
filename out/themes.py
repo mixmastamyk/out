@@ -120,9 +120,13 @@ styles['blink'] = _blink
 # these are full themes, colors, icons, msg and date formats
 themes = dict(
     interactive = dict(
-        style = styles['bold'],
+        style = styles['norm'],
         icons = icons['rounded'],
-        fmt='  {on}{icon}{off} {message}',
+        fmt='  {on}{icon}{off} ' +
+            fg.i242 + '{name}/' +  # dark grey
+            fg.i245 + '{funcName}:' +  # medium grey
+            fg.green + '{lineno}' + fx.end +
+            ' {message}',
         datefmt='%H:%M:%S',
     ),
 
@@ -131,5 +135,10 @@ themes = dict(
         icons = icons['symbol'],
         fmt='{asctime}.{msecs:03.0f} {on}{icon} {levelname:<7}{off} {message}',
         datefmt='%Y-%m-%d %H:%M:%S',
-    )
+    ),
+
+    plain = dict(
+        fmt='{asctime}.{msecs:03.0f} {levelname:<7} {name}/{funcName}:{lineno} {message}',
+        datefmt='%Y-%m-%d %H:%M:%S',
+    ),
 )

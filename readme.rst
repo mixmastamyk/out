@@ -5,11 +5,12 @@ Out
 Simplified logging with a touch of fun—\
 out gets "outta" the way.
 
-Why's are covered in the
-background_
-section below.
+Why's are covered in the background_ section at the bottom.
 
 .. ~ TODO:
+.. ~ HOWTO with Pygments
+.. ~ pygments to 256 colors?
+.. ~ document theme keyword plain, dict etc, uses std formatter
 
 .. ~ 'format': ' %(levelname)-7.7s %(name)s/%(funcName)s:%(lineno)s'
           .. ~ ' %(message)s'
@@ -20,14 +21,12 @@ section below.
           .. ~ '[32m%(lineno)s[0m'
           .. ~ ' %(message)s',
 
-.. ~ HOWTO with Pygments
-
 
 Fun Features
 --------------------------
 
 Concise as hell,
-a singleton ready to log on import.
+a singleton logger ready on import.
 In interactive mode:
 
 .. code-block:: python
@@ -40,7 +39,7 @@ In interactive mode:
     >>> out.warn('Danger Will Robinson!')
     🆆 Danger Will Robinson!
 
-Imagine with nice ANSI colors. 😁
+(Imagine with nice ANSI colors. 😁)
 Out has simple themes for message formats, styles, and icons.
 Not to worry,
 out is more conservative in production mode,
@@ -198,7 +197,10 @@ package is a good choice to generate ANSI styles:
     blue_note = dict(
         NOTE=str(fg.lightblue + fx.bold + fx.reverse),  # etc
     )
-    out.configure(style=blue_note)
+    out.configure(
+        style=blue_note,
+        msgfmt=bg.blue + '{asctime}' + fx.end + ' {message}',
+    )
     out.note('John Coltrane')
 
 A full theme is the whole kit together in a mapping—\
@@ -303,8 +305,9 @@ Tips
   .. code-block:: python
 
     >>> out.log_config()
+    '''  # quotes to shut off highlighting:
     🅳  Logging config:
-    🅳  / name: root, id: 139973461370360
+    🅳  / name: main, id: 139973461370360
     🅳    .level: trace (7)
     🅳    .default_level: info (20)
     🅳    + Handler: 0 <StreamHandler <stderr> (NOTSET)>
@@ -312,6 +315,10 @@ Tips
     🅳        .style: <logging.StrFormatStyle object at 0x7f4e1c65ef28>
     🅳        .datefmt: '%H:%M:%S'
     🅳        .msgfmt: '  {on}{icon}{off} {message}'
+    '''
+
+    The logger in the main script file is named "main,"
+    also known as "root."
 
 
 .. _background:

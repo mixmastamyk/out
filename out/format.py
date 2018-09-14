@@ -37,64 +37,85 @@ import logging
 
 from console.style import fx
 
-from .highlight import pygments, highlight, lex, fmt
+from .highlight import (highlight as _highlight, term_formatter,
+                        get_lexer_by_name)
 import out.themes as _themes
 
-
 _end = str(fx.end)
-DATA_SEARCH = (0, 60)
+DATA_SEARCH_INTERVAL = (0, 60)
 
 
 class ColorFormatter(logging.Formatter):
     ''' Colors the level-name of a log message according to the level.
 
+        Arguments:
+
+            datefmt         - strftime datetime template
+            fmt             - log template
+            icons           - dict of level:value for icons
+            style           - dict of level:value for terminal style
+            template_style  - log template syntax: %, {, $
+            tty             - if in a tty, to toggle escape sequences
+
+            # highlighting
+            lexer           - None, or Pygment's lexer: python3', 'json', etc.
+            code_indent     - If highlighting data containing newlines, indent.
     '''
     default_msec_format = '%s.%03d'  # use period decimal point
 
     def __init__(self,
-                 fmt=None,
                  datefmt=None,
-                 highlight=True,
+                 fmt=None,
                  icons=None,
                  style=None,
                  template_style='{',
                  tty=True,
-                ):
+                 lexer='python3',
+                 code_indent=12,
+        ):
         self._is_a_tty = tty
-        self.style = style if style else _themes.style['norm']
-        self.icons = icons if icons else _themes.icons['rounded']
+        self._theme_style = style if style else _themes.styles['norm']
+        self._theme_icons = icons if icons else _themes.icons['rounded']
+        self._code_indent = code_indent
+        self._highlight = self._lexer = None
+        if tty and lexer:
+            self._highlight = _highlight
+            self.set_lexer(lexer)
 
         super().__init__(fmt=fmt, datefmt=datefmt, style=template_style)
 
+    def set_lexer(self, name):
+        self._lexer = get_lexer_by_name(name)
+
     def format(self, record):
-        ''' Log color formatting, probably could be done better. '''
+        ''' Log color formatting. '''
         levelname = record.levelname    # len7 limit
         if levelname == 'CRITICAL':
             levelname = record.levelname = 'FATAL'
         if self.usesTime():
             record.asctime = self.formatTime(record, self.datefmt)
 
+        # render the message part with arguments
         try:  # Allow {} style - need a faster way to determine this:
-            message = record.getMessage()  # renders msg part with args
-        except TypeError as err:
+            message = record.getMessage()
+        except TypeError:
             message = record.msg.format(*record.args)
 
         # decide to highlight w/ pygments
-        if pygments and self._is_a_tty:
+        if self._highlight:
             for datachar in ('{', '['):
-                pos = message.find(datachar, *DATA_SEARCH)
+                pos = message.find(datachar, *DATA_SEARCH_INTERVAL)
                 if pos != -1:
                     front, back = message[:pos], message[pos:]  # Spliten-Sie
-                    back = highlight(back, lex, fmt)
+                    back = self._highlight(back, self._lexer, term_formatter)
                     if front.endswith('\n'):                    # indent data?
-                        back = left_indent(back)
-
+                        back = left_indent(back, self._code_indent)
                     message = front + back
                     break  # once thanks
 
         record.message = message
-        record.on = self.style.get(levelname, '')
-        record.icon = self.icons.get(levelname, '')
+        record.on = self._theme_style.get(levelname, '')
+        record.icon = self._theme_icons.get(levelname, '')
         record.off = _end
         s = self.formatMessage(record)
 

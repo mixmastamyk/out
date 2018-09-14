@@ -36,7 +36,7 @@ setup(
     long_description    = slurp('readme.rst'),
     packages            = ('out',),
     url                 = 'https://github.com/mixmastamyk/out',
-    version             = '0.53',
+    version             = '0.54',
 
     extras_require      = extras_require,
     install_requires    = install_requires,

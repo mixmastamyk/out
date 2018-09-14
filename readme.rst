@@ -2,31 +2,23 @@
 Out
 ===========
 
-Simplified logging with a touch of fun—\
-out gets "outta" the way.
+Simple, fun take on logging for non-huge projects. Gets "outta" the way.
 
-Why's are covered in the background_ section at the bottom.
+(Why's are covered in the background_ section at the bottom.)
 
 .. ~ TODO:
 .. ~ HOWTO with Pygments
 .. ~ pygments to 256 colors?
 .. ~ document theme keyword plain, dict etc, uses std formatter
-
-.. ~ 'format': ' %(levelname)-7.7s %(name)s/%(funcName)s:%(lineno)s'
-          .. ~ ' %(message)s'
-
-.. ~ 'format': '%(levelname)-7.7s'
-          .. ~ '[38;5;242m%(name)s/'
-          .. ~ '[38;5;245m%(funcName)s:'
-          .. ~ '[32m%(lineno)s[0m'
-          .. ~ ' %(message)s',
+.. ~ console crashes on: p3 -m out.demos
 
 
 Fun Features
 --------------------------
 
-Concise as hell,
-a singleton logger ready on import.
+First of all,
+out is concise as hell,
+basically a singleton logger ready on import.
 In interactive mode:
 
 .. code-block:: python
@@ -61,6 +53,7 @@ Obvious defaults, and easy to configure!
             theme=name|{},
             icons=name|{},          # see below
             style=name|{},          # about themes
+            lexer='python3',        # highlight data
         )
 
 
@@ -130,8 +123,8 @@ These are commonly requested additions commonly poo-poo'd by core devs:
 
 
 
-Message Template
-~~~~~~~~~~~~~~~~~~
+Log Template: msgfmt
+~~~~~~~~~~~~~~~~~~~~~~~
 
 By default out supports the ``{}`` formatting style,
 as it is a bit easier to read.
@@ -155,11 +148,19 @@ Use of
 
     {on}{icon}{off}     Style and icon support.
 
+For example:
+
+.. code-block:: python
+
+    out.configure(
+        msgfmt='{on}{icon}{levelname:<7}{off} {message}'
+    )
+
 
 DateTime Format
 ++++++++++++++++++
 
-These continue to be configuable via
+These are configuable via
 `strftime <https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior>`_
 syntax and the
 ``datefmt`` keyword to ``configure``.
@@ -256,6 +257,8 @@ Full themes:
     interactive
     production
 
+    plain (Uses logging.Formatter for lower overhead.)
+
 
 .. note::
 
@@ -263,7 +266,7 @@ Full themes:
     the last specified will win.
     This requires > Python 3.6, due to ordered keyword args.
     Below this version it is not recommended to do this since keyword order
-    will be undefined.
+    will be undefined and therefore the result.
 
 
 Tips
@@ -281,7 +284,8 @@ Tips
 
     print = out.info  # or other level
 
-- Perhaps some logging was already added, but would like to simplify::
+- Perhaps some logging was already added, but you'd like to downsize.
+  Add this to your main script::
 
     import out as logger
 
@@ -304,8 +308,8 @@ Tips
 
   .. code-block:: python
 
-    >>> out.log_config()
-    '''  # quotes to shut off highlighting:
+    >>> out.log_config()  # quotes to shut off highlighting:
+    '''
     🅳  Logging config:
     🅳  / name: main, id: 139973461370360
     🅳    .level: trace (7)
@@ -317,8 +321,8 @@ Tips
     🅳        .msgfmt: '  {on}{icon}{off} {message}'
     '''
 
-    The logger in the main script file is named "main,"
-    also known as "root."
+The logger in the main script file is named "main,"
+also known as "root."
 
 
 .. _background:
@@ -353,8 +357,8 @@ Therefore,
 for many (if not most) applications,
 all the complexity and mumbo-jumbo in the logging package documentation about
 multiple loggers with different levels, different handlers, formatters,
-filters,
-and complex configuration is often flexibility at the wrong level.
+adapters, filters,
+and complex configuration is flexibility at the *wrong level.*
 In fairness,
 this may not have always been the case,
 and can still be helpful, perhaps on Windows.
@@ -363,7 +367,7 @@ Additionally, logging tools have also become standardized over time,
 handling cross-language and cross-platform messages.
 Imagine a pipeline where log events are routed and multiple tools can be
 plugged in or out as needed—\
-company-wide rather than language or app-wide.
+organization-wide rather than app-wide.
 
 So, unless you have unique requirements,
 there's no need to reimplement ``logrotate``, ``syslog``, ``systemd``, and

@@ -82,7 +82,10 @@ class Logger(logging.Logger):
                 self.handlers[0].formatter.style = value
 
             elif kwarg == 'lexer':
-                self.handlers[0].formatter.set_lexer(value)
+                try:
+                    self.handlers[0].formatter.set_lexer(value)
+                except AttributeError as err:
+                    self.error('lexer: ColorFormatter not available.')
 
             else:
                 setattr(self, kwarg, value)

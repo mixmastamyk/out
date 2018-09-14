@@ -56,6 +56,9 @@ print('Set to plain theme, with std formatter for speed:\n')
 out.configure(
     theme='plain',
 )
+#~ out.configure(
+    #~ msgfmt='  {on}{icon}{levelname:<7}{off} {message}'
+#~ )
 out('no explicit level')
 out.trace('trace msg: %s', 'Absurdly voluminous details…')
 out.debug('debug message')

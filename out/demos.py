@@ -1,6 +1,7 @@
 import out
 
 import test_mod; test_mod  # pyflakes
+print('-' * 50)
 
 #~ ltd = out
 #~ while ltd is not None:
@@ -30,39 +31,39 @@ def test_it(full=True):
         out.fatal('fatal message - *flatline*')
     print('-' * 50)
 
-#~ print('defaults:')
-#~ print()
-#~ full_test()
 
-
-#~ print('With level TRACE:')
 print()
 out.configure(
     level='trace',
     lexer='json',
 )
-out.debug('debug message: JSON {"data": [null, true, false, 123]}')
+out.debug('debug message: JSON:\t{"data": [null, true, false, 123]}')
 
-out.configure(
-    lexer='python3',
-)
-out.note('debug message: PyON %s', {'data': [None, True, False, 123]})
+out.configure(lexer='xml')
+out.trace('debug message: XML:\t<foo><bar attr="woot">baz</bar></foo>')
+
+
+out.configure(lexer='python3')
+out.note('debug message: PyON:\t%r', {'data': [None, True, False, 123]})
 test_it()
 
 out.log_config()
 
+out.configure(
+    style='mono',
+    msgfmt='{asctime}.{msecs:03.0f} {on}{levelname:<7} '
+            '{name}/{funcName}:{lineno} {message} {off}',
+)
+test_it()
 
-print('Set to plain theme, with std formatter for speed:\n')
+print('Set to plain theme, with std formatter for modest speed boost:\n')
 out.configure(
     theme='plain',
+    #~ theme='json',
 )
-#~ out.configure(
-    #~ msgfmt='  {on}{icon}{levelname:<7}{off} {message}'
-#~ )
 out('no explicit level')
 out.trace('trace msg: %s', 'Absurdly voluminous details…')
 out.debug('debug message')
-
 
 #~ print('With msgfmt configured:')
 #~ print()
@@ -71,3 +72,5 @@ out.debug('debug message')
 
 #~ print('=========== APP OUTPUT ===========')
 #~ print('=========== APP OUTPUT ===========')
+
+

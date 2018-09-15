@@ -2,19 +2,21 @@
 Out
 ===========
 
-Simple, fun take on logging for non-huge projects. Gets "outta" the way.
+Simple, fun take on logging for non-huge projects—gets "outta" the way.
 
 (Why's are covered in the background_ section at the bottom.)
 
 .. ~ TODO:
-.. ~ HOWTO with Pygments
 .. ~ pygments to 256 colors?
-.. ~ document theme keyword plain, dict etc, uses std formatter
 .. ~ console crashes on: p3 -m out.demos
+    .. ~ fix, init function?
+
+    .. ~ console:
+        .. ~ downgrade to each level
 
 
-Fun Features
---------------------------
+Features
+------------
 
 First of all,
 out is concise as hell,
@@ -26,10 +28,10 @@ In interactive mode:
     >>> import out
 
     >>> out('And away we go…')  # configurable default level
-    🅸 And away we go…
+    🅸 main/func:1 And away we go…
 
     >>> out.warn('Danger Will Robinson!')
-    🆆 Danger Will Robinson!
+    🆆 main/func:1 Danger Will Robinson!
 
 (Imagine with nice ANSI colors. 😁)
 Out has simple themes for message formats, styles, and icons.
@@ -38,9 +40,9 @@ out is more conservative in production mode,
 turned on automatically by redirecting ``stderr``::
 
     ⏵ python3 script.py |& cat
-    2018-09-10 17:18:19.123 ✗ ERROR  Kerblooey!
+    2018-09-10 17:18:19.123 ✗ ERROR main/func:1 Kerblooey!
 
-Obvious defaults, and easy to configure!
+Useful defaults, and easy to configure!
 
 .. code-block:: python
 
@@ -50,10 +52,10 @@ Obvious defaults, and easy to configure!
             datefmt='…',            # strftime
             msgfmt='…',             # see below
             stream=file,            # stderr
-            theme=name|{},
-            icons=name|{},          # see below
-            style=name|{},          # about themes
-            lexer='python3',        # highlight data
+            theme=name|dict,
+            icons=name|dict,        # see below
+            style=name|dict,        #   about themes
+            lexer='python3',        # highlighting
         )
 
 
@@ -87,11 +89,11 @@ Colors, Unicode, Icons
     >>> unicodedata.east_asian_width('💀')
     'W'
 
-- Syntax highlighting of data structures (oft parsed from JSON APIs) is
+- Syntax highlighting of data structures (oft parsed from remote APIs) is
   available too, via Pygments.
 
 
-Levels+
+Levels++
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 While the
@@ -99,7 +101,7 @@ While the
 continue to exist
 (``NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICAL``).
 A few additions and slight modifications have been made.
-These are commonly requested additions commonly poo-poo'd by core devs:
+Commonly requested:
 
 - ``TRACE``, for absurdly voluminous data, perhaps system calls or network
   traffic.
@@ -112,7 +114,7 @@ These are commonly requested additions commonly poo-poo'd by core devs:
   | ``NOTE`` - Token is ABCXYZ, rather than…
   | ``WARNING`` - Token is ABCXYZ.
 
-- ``EXCEPT``, to differentiate expected from unexpected errors.
+- ``EXCEPT``, to differentiate common from unexpected errors.
   Think ``FileNotFound`` vs. ``Exception``.
 
 - ``FATAL``, a renaming of ``CRITICAL``,
@@ -123,10 +125,13 @@ These are commonly requested additions commonly poo-poo'd by core devs:
 
 
 
-Log Template: msgfmt
-~~~~~~~~~~~~~~~~~~~~~~~
+Templating
+~~~~~~~~~~~~
 
-By default out supports the ``{}`` formatting style,
+**Log Format:**
+
+By default out supports the ``{}`` formatting style for both the log template
+and message fields,
 as it is a bit easier to read.
 Most fields are found in the Python
 `logging docs. <https://docs.python.org/3/library/logging.html#logrecord-attributes>`_::
@@ -155,6 +160,21 @@ For example:
     out.configure(
         msgfmt='{on}{icon}{levelname:<7}{off} {message}'
     )
+
+
+**Message:**
+
+When writing messages, printf ``%`` formatting style is supported as well
+due to compatibility requirements with a majority of libraries:
+
+.. code-block:: python
+
+    out.warn('foo: %s', bar)
+    out.warn('foo: {}', bar)
+
+The second form may be used also,
+though it will be a tiny bit slower,
+since the printf style will be tried first.
 
 
 DateTime Format
@@ -188,7 +208,8 @@ Themes are simply dictionaries with one entry per level:
 
 The
 `console <https://mixmastamyk.bitbucket.io/console/>`_
-package is a good choice to generate ANSI styles:
+package is a good choice to generate ANSI styles for the levels,
+as well as styling other fields:
 
 .. code-block:: python
 
@@ -196,10 +217,11 @@ package is a good choice to generate ANSI styles:
     import out
 
     blue_note = dict(
-        NOTE=str(fg.lightblue + fx.bold + fx.reverse),  # etc
+        NOTE=str(fg.lightblue + fx.bold + fx.reverse),
+        # other levels…
     )
     out.configure(
-        style=blue_note,
+        style=blue_note,  # ← level styles, field styles ↓
         msgfmt=bg.blue + '{asctime}' + fx.end + ' {message}',
     )
     out.note('John Coltrane')
@@ -234,30 +256,32 @@ Or by setting a custom mapping:
 .. code-block:: python
 
     >>> out.configure(
-            theme=interactive,  # or, just icons:
+            theme=interactive,  # or perhaps just icons:
             icons=dict(DEBUG='• ', INFO='✓ ', WARNING='⚠ ', ) # …
         )
 
 A few themes are bundled:
 
 Icons:
-    ascii
-    ascii_symbol
-    circled
-    circled_lower
-    rounded
+    ascii,
+    ascii_symbol,
+    circled,
+    circled_lower,
+    rounded,
     symbol
 
 Styles:
-    norm
-    bold
-    blink (on fatal error)
+    - norm
+    - bold
+    - mono (monochrome)
+    - blink (fatal error only)
 
 Full themes:
-    interactive
-    production
-
-    plain (Uses logging.Formatter for lower overhead.)
+    - interactive
+    - production
+    - plain (Uses logging.Formatter for lower overhead.)
+    - json (Uses formatter.JSONFormatter)
+    - mono (monochrome)
 
 
 .. note::
@@ -267,6 +291,41 @@ Full themes:
     This requires > Python 3.6, due to ordered keyword args.
     Below this version it is not recommended to do this since keyword order
     will be undefined and therefore the result.
+    One workaround is to call configure twice.
+
+
+Syntax Highlighting w/Pygments
+--------------------------------
+
+When Pygments is installed,
+syntax highlighting is available for Python data structures and code,
+as well as JSON and XML strings—\
+potentially anything Pygments can highlight.
+This can be helpful when debugging remote APIs for example.
+
+A lexer may be
+`selected by name <http://pygments.org/docs/lexers/>`_
+via ``configure(lexer=LEXER_NAME)``,
+disabled by setting to ``None``.
+
+**Use:**
+
+Text following a tab (``\t``, in the first 80) characters,
+is highlighted with the current
+lexer+formatter:
+
+.. code-block:: python
+
+    # default Python3
+    out.debug('PYON data:\t%r',
+              {'data': [None, True, False, 123]})
+
+    out.configure(lexer='json')
+    out.debug('JSON data:\t'
+              '{"data": [null, true, false, 123]}')
+
+(Imagine with lovely ANSI flavors. 😁)
+The tab becomes a single space on output.
 
 
 Tips
@@ -289,13 +348,13 @@ Tips
 
     import out as logger
 
-
-  A lot of code now doesn't need to change.
+  Code doesn't need to change now.
 
 .. ~ - Want to keep your complex configuration but use the ``ColorFormatter`` class
   .. ~ and themes in your own project?
 
-- The ``ColorFormatter`` class can be used in your own project:
+- The ``ColorFormatter`` and ``JSONFormatter`` classes can be used in your own
+  project:
 
   .. code-block:: python
 
@@ -304,7 +363,7 @@ Tips
     >>> cf = ColorFormatter()
     >>> handler.setFormatter(cf)
 
-- To print the logging configuration:
+- To print the current logging configuration:
 
   .. code-block:: python
 
@@ -367,7 +426,7 @@ Additionally, logging tools have also become standardized over time,
 handling cross-language and cross-platform messages.
 Imagine a pipeline where log events are routed and multiple tools can be
 plugged in or out as needed—\
-organization-wide rather than app-wide.
+organization-wide rather than app- or language-wide.
 
 So, unless you have unique requirements,
 there's no need to reimplement ``logrotate``, ``syslog``, ``systemd``, and
@@ -381,7 +440,7 @@ so is still quite flexible when need be.
 
 Well, you've heard this before.
 However, *out* tries a bit harder create a fun, easy-to-use interface,
-as hopefully demonstrated above.
+as discussed above.
 
 Name
 ~~~~~~~
@@ -392,6 +451,6 @@ all variations are long gone on PyPI.
 ``out()`` is a name I've often used over the years as a poor-man's logger—\
 really a functional wrapper around ``print``,
 until I could get around to adding proper logging.
-Now we can continue the tradition.
+The tradition continues
 The name is short, simple, and conceptually fits,
 if a little bland.

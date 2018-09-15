@@ -38,7 +38,7 @@ try:
         Name.Decorator:     ('fuchsia',     'purple'),
         Name.Variable:      ('darkred',     'red'),
         #~ Name.Attribute:     ('teal',        'turquoise'),
-        Name.Tag:           ('blue',        'blue'),
+        Name.Tag:           ('darkblue',        'red'),
         #~ String:             ('darkred',       'darkred'),
         String:             ('purple',       'fuchsia'),
         Number:             ('darkgreen',   'darkgreen'),

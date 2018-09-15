@@ -8,7 +8,7 @@ import traceback
 
 from console.detection import is_a_tty
 
-from .format import ColorFormatter as _ColorFormatter
+from .format import ColorFormatter as _ColorFormatter, JSONFormatter as _JSONFormatter
 from .themes import themes as _themes, icons as _icons, styles as _styles
 
 
@@ -61,6 +61,8 @@ class Logger(logging.Logger):
                     theme = _themes[value]
                     if value == 'plain':
                         fmtr =  logging.Formatter(**theme, style='{')
+                    elif value == 'json':
+                        fmtr =  _JSONFormatter(**theme)
                     else:
                         fmtr =  _ColorFormatter(tty=_is_a_tty, **theme)
                 elif type(value) is dict:
@@ -74,12 +76,12 @@ class Logger(logging.Logger):
             elif kwarg == 'icons':
                 if type(value) is str:
                     value = _icons[value]
-                self.handlers[0].formatter.icons = value
+                self.handlers[0].formatter._theme_icons = value
 
             elif kwarg == 'style':
                 if type(value) is str:
                     value = _styles[value]
-                self.handlers[0].formatter.style = value
+                self.handlers[0].formatter._theme_style = value
 
             elif kwarg == 'lexer':
                 try:
@@ -88,24 +90,28 @@ class Logger(logging.Logger):
                     self.error('lexer: ColorFormatter not available.')
 
             else:
-                setattr(self, kwarg, value)
+                #~ setattr(self, kwarg, value)
+                raise NameError('unknown keyword argument: %s' % kwarg)
 
     def log_config(self):
         ''' Log the current configuration. '''
         level = self.level
         self.debug('Logging config:')
-        self.debug('/ name: {}, id: {}', self.name, id(self))
-        self.debug('  .level: %s (%s)', level_map_int[level], level)
-        self.debug('  .default_level: %s (%s)',
+        self.debug('/ name: {}, id:\t{}', self.name, id(self))
+        self.debug('  .level: %s\t(%s)', level_map_int[level], level)
+        self.debug('  .default_level: %s\t(%s)',
                         level_map_int[self.default_level], self.default_level)
         for i, handler in enumerate(self.handlers):
             fmtr = handler.formatter
             self.debug('  + Handler: %s %r', i, handler)
             self.debug('    + Formatter: %r', fmtr)
+            self.debug('      .datefmt:\t%r', fmtr.datefmt)
+            self.debug('      .msgfmt:\t%r', fmtr._fmt)
             self.debug('      fmt_style: %r', fmtr._style)
-            self.debug('      lexer: %r', fmtr._lexer)
-            self.debug('      .datefmt: %r', fmtr.datefmt)
-            self.debug('      .msgfmt: %r', fmtr._fmt)
+            try:
+                self.debug('      lexer: %r\n', fmtr._lexer)
+            except AttributeError:
+                pass
 
     def setLevel(self, level):
 

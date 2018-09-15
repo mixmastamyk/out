@@ -14,8 +14,8 @@ icons = dict(
         TRACE    = '• ',
         DEBUG    = '• ',
         INFO     = '✓ ',
-        WARNING  = '⚠ ',
         NOTE     = '🎗 ',
+        WARNING  = '⚠ ',
         ERROR    = '✗ ',
         EXCEPT   = '💣',
         CRITICAL = '💀',
@@ -26,8 +26,8 @@ icons = dict(
         TRACE    = 'ⓣ ',
         DEBUG    = 'ⓓ ',
         INFO     = 'ⓘ ',
-        WARNING  = 'ⓦ ',
         NOTE     = 'ⓝ ',
+        WARNING  = 'ⓦ ',
         ERROR    = 'ⓔ ',
         EXCEPT   = 'ⓧ ',
         CRITICAL = 'ⓕ ',
@@ -38,8 +38,8 @@ icons = dict(
         TRACE    = 'T ',
         DEBUG    = 'D ',
         INFO     = 'I ',
-        WARNING  = 'W ',
         NOTE     = 'N ',
+        WARNING  = 'W ',
         ERROR    = 'E ',
         EXCEPT   = 'X ',
         CRITICAL = 'F ',
@@ -50,8 +50,8 @@ icons = dict(
         TRACE    = '~ ',
         DEBUG    = '- ',
         INFO     = '= ',
-        WARNING  = '! ',
         NOTE     = '> ',
+        WARNING  = '! ',
         ERROR    = '! ',
         EXCEPT   = '! ',
         CRITICAL = '!!',
@@ -62,8 +62,8 @@ icons = dict(
         TRACE    = '🅣 ',
         DEBUG    = '🅓 ',
         INFO     = '🅘 ',
-        WARNING  = '🅦 ',
         NOTE     = '🅝 ',
+        WARNING  = '🅦 ',
         ERROR    = '🅔 ',
         EXCEPT   = '🅧 ',
         CRITICAL = '🅕 ',
@@ -74,8 +74,8 @@ icons = dict(
         TRACE    = '🆃 ',
         DEBUG    = '🅳 ',
         INFO     = '🅸 ',
-        WARNING  = '🆆 ',
         NOTE     = '🅽 ',
+        WARNING  = '🆆 ',
         ERROR    = '🅴 ',
         EXCEPT   = '🆇 ',
         CRITICAL = '🅵 ',
@@ -91,25 +91,37 @@ styles = dict(
         TRACE    = str(fg.purple),
         DEBUG    = str(fg.blue),
         INFO     = str(fg.green),
-        WARNING  = str(fg.lightyellow),
         NOTE     = str(fg.lightcyan),
+        WARNING  = str(fg.lightyellow),
         ERROR    = str(fg.red),
         EXCEPT   = str(fg.lightred),
         CRITICAL = str(_fatal_clr),
         FATAL    = str(_fatal_clr),
-        NOTSET   = str(fx.end),
+        NOTSET   = '',
     ),
     bold = dict(
         TRACE    = str(fg.purple),
         DEBUG    = str(fg.blue),
         INFO     = str(fg.lightgreen),
-        WARNING  = str(fg.yellow + fx.bold),
         NOTE     = str(fg.cyan + fx.bold),
+        WARNING  = str(fg.yellow + fx.bold),
         ERROR    = str(fg.red + fx.bold),
         EXCEPT   = str(fg.lightred + fx.bold),
         CRITICAL = str(_fatal_clr + fx.bold),
         FATAL    = str(_fatal_clr + fx.bold),
-        NOTSET   = str(fx.end),
+        NOTSET   = '',
+    ),
+    mono = dict(
+        TRACE    = str(fx.dim),
+        DEBUG    = str(fx.dim),
+        INFO     = '',
+        NOTE     = str(fx.italic),
+        WARNING  = str(fx.italic),
+        ERROR    = str(fx.bold),
+        EXCEPT   = str(fx.bold),
+        CRITICAL = str(fx.bold + fx.reverse),
+        FATAL    = str(fx.bold + fx.reverse),
+        NOTSET   = '',
     ),
 )
 _blink = styles['norm'].copy()
@@ -122,10 +134,10 @@ themes = dict(
     interactive = dict(
         style = styles['norm'],
         icons = icons['rounded'],
-        fmt='  {on}{icon}{off} ' +
+        fmt='  {on}{icon:<2}{off} ' +
             fg.i242 + '{name}/' +  # dark grey
             fg.i245 + '{funcName}:' +  # medium grey
-            fg.green + '{lineno}' + fx.end +
+            fg.green + '{lineno:<3}' + fx.end +
             ' {message}',
         datefmt='%H:%M:%S',
     ),
@@ -133,12 +145,27 @@ themes = dict(
     production = dict(
         style = None,
         icons = icons['symbol'],
-        fmt='{asctime}.{msecs:03.0f} {on}{icon} {levelname:<7}{off} {message}',
+        fmt='{asctime}.{msecs:03.0f} {on}{icon:<2} {levelname:<7}{off} '
+            '{name}/{funcName}:{lineno} {message}',
         datefmt='%Y-%m-%d %H:%M:%S',
     ),
 
     plain = dict(
-        fmt='{asctime}.{msecs:03.0f} {levelname:<7} {name}/{funcName}:{lineno} {message}',
+        fmt='{asctime}.{msecs:03.0f} {levelname:<7} {name}/{funcName}:{lineno}'
+            ' {message}',
         datefmt='%Y-%m-%d %H:%M:%S',
+    ),
+
+    json = dict(
+        #~ fmt='asctime,msecs:03.0f,levelname,name,funcName,lineno,message',
+        fmt='asctime,msecs,levelname,name,funcName,lineno,message',
+        datefmt='%Y-%m-%d %H:%M:%S',
+    ),
+
+    mono = dict(
+        datefmt='%Y-%m-%d %H:%M:%S',
+        style='mono',
+        fmt='{asctime}.{msecs:03.0f} {on}{levelname:<7} '
+            '{name}/{funcName}:{lineno} {message}{off}',
     ),
 )

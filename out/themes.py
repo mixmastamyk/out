@@ -157,7 +157,6 @@ themes = dict(
     ),
 
     json = dict(
-        #~ fmt='asctime,msecs:03.0f,levelname,name,funcName,lineno,message',
         fmt='asctime,msecs,levelname,name,funcName,lineno,message',
         datefmt='%Y-%m-%d %H:%M:%S',
     ),
@@ -168,4 +167,20 @@ themes = dict(
         fmt='{asctime}.{msecs:03.0f} {on}{levelname:<7} '
             '{name}/{funcName}:{lineno} {message}{off}',
     ),
+
+    linux_interactive = dict(
+        style = styles['norm'],
+        icons = icons['ascii'],
+        fmt='  {on}{levelname:<7}{off} ' +
+            fg.lightblack + '{name}/{funcName}:' +  # dark grey
+            fg.green + '{lineno:<3}' + fx.end +
+            ' {message}',
+    ),
+    linux_production = dict(
+        style = styles['norm'],
+        icons = None,
+        fmt='{asctime}.{msecs:03.0f} {on}{levelname:<7}{off} '
+            '{name}/{funcName}:{lineno} {message}',
+    ),
+
 )

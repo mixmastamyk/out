@@ -2,6 +2,7 @@
     out - Simple logging with a few fun features.
     © 2018, Mike Miller - Released under the LGPL, version 3+.
 '''
+import os
 import sys
 import logging
 import traceback
@@ -109,6 +110,8 @@ class Logger(logging.Logger):
             self.debug('      .msgfmt:\t%r', fmtr._fmt)
             self.debug('      fmt_style: %r', fmtr._style)
             try:
+                self.debug('      theme styles:\t%r', fmtr._theme_style)
+                self.debug('      theme icons:\t%r', fmtr._theme_icons)
                 self.debug('      lexer: %r\n', fmtr._lexer)
             except AttributeError:
                 pass
@@ -163,6 +166,7 @@ out = logging.getLogger()   # root
 out.name = 'main'
 out.__class__ = Logger      # one way to add call()
 
+
 # odd level numbers chosen to avoid commonly configured variations
 add_logging_level('TRACE', 7)
 add_logging_level('NOTE', 27)
@@ -178,8 +182,10 @@ out.setLevel('info')  # lowered to info - note didn't show up by default.
 
 # handler/formatter
 _handler = logging.StreamHandler(stream=_out_file)
-_theme = _themes['interactive' if _is_a_tty else 'production']
-_formatter = _ColorFormatter(tty=_is_a_tty, **_theme)
+_theme_name = 'interactive' if _is_a_tty else 'production'
+if os.environ.get('TERM') == 'linux':
+    _theme_name = 'linux_' + _theme_name
+_formatter = _ColorFormatter(tty=_is_a_tty, ** _themes[_theme_name])
 #~ _formatter.default_msec_format = '%s.%03d'
 _handler.setFormatter(_formatter)
 out.addHandler(_handler)

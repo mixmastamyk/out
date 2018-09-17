@@ -37,16 +37,17 @@ out.configure(level='trace')
 test_it()
 out.log_config()
 
+out.configure(lexer='json')
+out.debug('debug message: JSON:\t{"data": [null, true, false, "hi", 123]}')
+
+out.configure(lexer='xml')
+out.trace('debug message: XML:\t<foo><bar attr="woot">baz</bar></foo><!-- hi -->')
+out.configure(lexer='python3')
+out.note('debug message: PyON:\t%r # hi',
+         {'data': [None, True, False, 'hi', 123]})
 
 if False:
 
-    out.configure(lexer='json')
-    out.debug('debug message: JSON:\t{"data": [null, true, false, 123]}')
-
-    out.configure(lexer='xml')
-    out.trace('debug message: XML:\t<foo><bar attr="woot">baz</bar></foo>')
-    out.configure(lexer='python3')
-    out.note('debug message: PyON:\t%r', {'data': [None, True, False, 123]})
     test_it()
 
     out.log_config()

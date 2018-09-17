@@ -4,6 +4,16 @@
 
     This module contains themes for colors, icons, message and date formats.
     They can be used separately, or together as a "full" theme.
+
+    Unicode symbols are used throughout as "icons" for increased readability and
+    conciseness.
+
+    They are/should be padded to two characters due to some glyphs being wide.
+    Width can be looked up, e.g.::
+
+        >>> unicodedata.east_asian_width('💀')
+        'W'
+
 '''
 from console import fg, fx
 
@@ -158,6 +168,7 @@ themes = dict(
 
     json = dict(
         fmt='asctime,msecs,levelname,name,funcName,lineno,message',
+        #~ formatter=JSONFormatter,
         datefmt='%Y-%m-%d %H:%M:%S',
     ),
 
@@ -172,7 +183,8 @@ themes = dict(
         style = styles['norm'],
         icons = icons['ascii'],
         fmt='  {on}{levelname:<7}{off} ' +
-            fg.lightblack + '{name}/{funcName}:' +  # dark grey
+            # dark grey, end needed for linux con:
+            fg.lightblack + '{name}/{funcName}:' + fx.end +
             fg.green + '{lineno:<3}' + fx.end +
             ' {message}',
     ),

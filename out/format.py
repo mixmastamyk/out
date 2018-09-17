@@ -37,7 +37,8 @@ import logging
 
 from console.style import fx
 
-from .highlight import (highlight as _highlight, term_formatter,
+from .highlight import (highlight as _highlight,
+                        term_formatter as _term_formatter,
                         get_lexer_by_name)
 import out.themes as _themes
 
@@ -59,7 +60,8 @@ class ColorFormatter(logging.Formatter):
 
             # highlighting
             lexer           - None, or Pygment's lexer: python3', 'json', etc.
-            code_indent     - If highlighting data containing newlines, indent.
+            term_formatter  - None, or pass a configured Pygments formatter.
+            code_indent     - If highlighting data with newlines, indent N sp.
     '''
     default_msec_format = '%s.%03d'  # use period decimal point
 
@@ -71,6 +73,7 @@ class ColorFormatter(logging.Formatter):
                  template_style='{',
                  tty=True,
                  lexer='python3',
+                 term_formatter=None,
                  code_indent=12,
         ):
         self._theme_style = style if style else _themes.styles['norm']
@@ -78,9 +81,11 @@ class ColorFormatter(logging.Formatter):
         self._code_indent = code_indent
         #~ self._is_a_tty = tty
         self._highlight = self._lexer = None
-        if tty and lexer:
-            self._highlight = _highlight
-            self.set_lexer(lexer)
+        if tty:
+            if lexer:
+                self._highlight = _highlight
+                self.set_lexer(lexer)
+            self._term_formatter = term_formatter or _term_formatter
 
         super().__init__(fmt=fmt, datefmt=datefmt, style=template_style)
 
@@ -107,7 +112,7 @@ class ColorFormatter(logging.Formatter):
             pos = message.find('\t', *DATA_SEARCH_INTERVAL)
             if pos != -1:
                 front, back = message[:pos], message[pos+1:]  # Spliten-Sie
-                back = self._highlight(back, self._lexer, term_formatter)
+                back = self._highlight(back, self._lexer, self._term_formatter)
                 if front.endswith('\n'):                    # indent data?
                     back = left_indent(back, self._code_indent) + '\n'
                 message = front + ' ' + back  # f'{front} {back}'

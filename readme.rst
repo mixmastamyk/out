@@ -7,13 +7,16 @@ Simple, fun take on logging for non-huge projects—gets "outta" the way.
 (Why's are covered in the background_ section at the bottom.)
 
 .. ~ TODO:
-.. ~ pygments to 256 colors?
+.. ~ pygments to 256/True colors?
 .. ~ console crashes on: p3 -m out.demos
     .. ~ fix, init function?
 
     .. ~ console:
         .. ~ downgrade to each level
 
+.. ~ Format tokens with ANSI color sequences, for output in a text console.
+.. ~ Color sequences are terminated at newlines, so that paging the output
+.. ~ works correctly.
 
 Features
 ------------
@@ -42,37 +45,6 @@ turned on automatically by redirecting ``stderr``::
     ⏵ python3 script.py |& cat
     2018-09-10 17:18:19.123 ✗ ERROR main/func:1 Kerblooey!
 
-Useful defaults, and easy to configure!
-
-.. code-block:: python
-
-    >>> out.configure(
-            level='note',           # or int
-            default_level='info',   # out('…')
-            datefmt='…',            # strftime
-            msgfmt='…',             # see below
-            stream=file,            # stderr
-            theme=name|dict,
-            icons=name|dict,        # see below
-            style=name|dict,        #   about themes
-            lexer='python3',        # highlighting
-        )
-
-
-.. note::
-
-    This is a library to simplify logging for *applications.*
-
-    Libraries should continue on as they always have:
-
-    .. code-block:: python
-
-        import logging
-
-        log = logging.getLogger(__name__)
-        # do not configure loggers, just use:
-        log.debug('foo')
-
 
 Colors, Unicode, Icons
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -83,14 +55,42 @@ Colors, Unicode, Icons
 - Unicode symbols are used throughout as "icons" for increased readability and
   conciseness.
 
-  They are/should be padded to two characters due to some glyphs being wide.
-  Width can be looked up, e.g.::
-
-    >>> unicodedata.east_asian_width('💀')
-    'W'
-
 - Syntax highlighting of data structures (oft parsed from remote APIs) is
   available too, via Pygments.
+
+
+Useful defaults, and easy to configure!
+
+.. code-block:: python
+
+    >>> out.configure(
+            level='note',           # or int
+            default_level='info',   # out('…')
+            datefmt='…',            # strftime
+            msgfmt='…',             # see below
+            stream=file,            # stderr
+
+            theme=name|dict,        # see below
+            icons=name|dict,        #   about themes
+            style=name|dict,
+            lexer='python3',        # highlighting
+        )
+
+
+.. note::
+
+    This is a library to simplify logging for the main script of
+    *applications.*
+
+    Libraries/modules should continue on as they always have:
+
+    .. code-block:: python
+
+        import logging
+
+        log = logging.getLogger(__name__)
+        # do not configure loggers, just use:
+        log.debug('foo')
 
 
 Levels++
@@ -124,7 +124,6 @@ Commonly requested:
   Out does not.
 
 
-
 Templating
 ~~~~~~~~~~~~
 
@@ -151,7 +150,7 @@ Most fields are found in the Python
 Use of
 ``out.format.ColorFormatter`` adds these additional fields::
 
-    {on}{icon}{off}     Style and icon support.
+    {on}{icon}{off}     Level-style and icon support.
 
 For example:
 
@@ -174,7 +173,7 @@ due to compatibility requirements with a majority of libraries:
 
 The second form may be used also,
 though it will be a tiny bit slower,
-since the printf style will be tried first.
+since the printf style is tried first.
 
 
 DateTime Format
@@ -282,6 +281,7 @@ Full themes:
     - plain (Uses logging.Formatter for lower overhead.)
     - json (Uses formatter.JSONFormatter)
     - mono (monochrome)
+    - linux_interactive, linux_production (vga console)
 
 
 .. note::
@@ -343,12 +343,12 @@ Tips
 
     print = out.info  # or other level
 
-- Perhaps some logging was already added, but you'd like to downsize.
+  Or perhaps some logging was already added, but you'd like to downsize.
   Add this to your main script::
 
     import out as logger
 
-  Code doesn't need to change now.
+  Less code will need to be changed.
 
 .. ~ - Want to keep your complex configuration but use the ``ColorFormatter`` class
   .. ~ and themes in your own project?
@@ -381,7 +381,7 @@ Tips
     '''
 
 The logger in the main script file is named "main,"
-also known as "root."
+also known as the "root" logger.
 
 
 .. _background:
@@ -391,8 +391,8 @@ Background
 
 If you're here it's very likely you already know that the Python standard
 logging module is extremely flexible.
-While awesome in theory,
-it's unfortunately overkill for small to medium projects,
+Awesome,
+however unfortunately overkill for small to medium projects,
 and these days many larger ones too.
 Additionally,
 its various Java-isms grate on the nerves,
@@ -442,15 +442,14 @@ Well, you've heard this before.
 However, *out* tries a bit harder create a fun, easy-to-use interface,
 as discussed above.
 
-Name
-~~~~~~~
+**Naming**
 
 Regarding the name,
-well of course would have like to pick something along the lines of ``log`` but
-all variations are long gone on PyPI.
+well of course would have liked something along the lines of ``log`` but all
+variations of that are *long gone* on PyPI.
 ``out()`` is a name I've often used over the years as a poor-man's logger—\
 really a functional wrapper around ``print``,
 until I could get around to adding proper logging.
-The tradition continues
+Now, the tradition continues.
 The name is short, simple, and conceptually fits,
 if a little bland.

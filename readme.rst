@@ -7,7 +7,7 @@ Simple, fun take on logging for non-huge projects—gets "outta" the way.
 (Why's are covered in the background_ section at the bottom.)
 
 .. ~ TODO:
-.. ~ pygments to 256/True colors?
+
 .. ~ console crashes on: p3 -m out.demos
     .. ~ fix, init function?
 
@@ -17,6 +17,7 @@ Simple, fun take on logging for non-huge projects—gets "outta" the way.
 .. ~ Format tokens with ANSI color sequences, for output in a text console.
 .. ~ Color sequences are terminated at newlines, so that paging the output
 .. ~ works correctly.
+
 
 Features
 ------------
@@ -46,8 +47,8 @@ turned on automatically by redirecting ``stderr``::
     2018-09-10 17:18:19.123 ✗ ERROR main/func:1 Kerblooey!
 
 
-Colors, Unicode, Icons
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Colors, Highlighting, Unicode Icons
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Colors are ready to go in interactive mode,
   and turn off automatically when output is redirected.

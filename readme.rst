@@ -2,21 +2,10 @@
 Out
 ===========
 
-Simple, fun take on logging for non-huge projects—gets "outta" the way.
+Fun take on logging for non-huge projects—gets "outta" the way.
 
 (Why's are covered in the background_ section at the bottom.)
 
-.. ~ TODO:
-
-.. ~ console crashes on: p3 -m out.demos
-    .. ~ fix, init function?
-
-    .. ~ console:
-        .. ~ downgrade to each level
-
-.. ~ Format tokens with ANSI color sequences, for output in a text console.
-.. ~ Color sequences are terminated at newlines, so that paging the output
-.. ~ works correctly.
 
 
 Features

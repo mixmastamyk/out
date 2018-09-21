@@ -4,12 +4,11 @@
 
     Highlighting with Pygments!
 '''
+from . import _CHOSEN_PALETTE
+
 
 try:
-    from console.detection import choose_palette
-
-    palette = choose_palette()
-    if palette:
+    if _CHOSEN_PALETTE:
         from pygments import highlight
         from pygments.lexers import get_lexer_by_name
         from pygments.token import (Keyword, Name, Comment, String, Error,
@@ -17,7 +16,7 @@ try:
     else:
         raise RuntimeError('color support not available.')
 
-    if palette in ('extended', 'truecolor'):
+    if _CHOSEN_PALETTE in ('extended', 'truecolor'):
         from pygments.formatters import Terminal256Formatter
         from pygments.style import Style
 
@@ -36,7 +35,7 @@ try:
             }
         term_formatter = Terminal256Formatter(style=AStyle)
 
-    elif palette == 'basic':
+    elif _CHOSEN_PALETTE == 'basic':
         from pygments.formatters import TerminalFormatter
 
         TERMINAL_COLORS = {     # dark-bg      # light-bg

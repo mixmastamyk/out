@@ -7,16 +7,30 @@ import sys
 import logging
 import traceback
 
-from console.detection import is_a_tty
+from console.detection import is_a_tty, choose_palette, get_available_palettes
+from console.style import ForegroundPalette, EffectsPalette
 
-from .format import ColorFormatter as _ColorFormatter, JSONFormatter as _JSONFormatter
-from .themes import themes as _themes, icons as _icons, styles as _styles
-
-
+# these vars need to be available for Formatter objects:
 _out_file = sys.stderr
 _is_a_tty = is_a_tty(_out_file)
 
-# Allow string as well as constant access, more levels are added below:
+def _find_palettes(stream):
+    ''' Need to configure palettes manually, since we are checking stderr '''
+    _CHOSEN_PALETTE = choose_palette(stream=stream)
+    _palettes = get_available_palettes(_CHOSEN_PALETTE)
+    fg = ForegroundPalette(autodetect=False, palettes=_palettes)
+    fx = EffectsPalette(autodetect=False, palettes=_palettes)
+    return fg, fx, _CHOSEN_PALETTE
+
+fg, fx, _CHOSEN_PALETTE = _find_palettes(_out_file)
+
+# now we're ready to import these:
+from .format import (ColorFormatter as _ColorFormatter,
+                     JSONFormatter as _JSONFormatter)
+from .themes import themes as _themes, icons as _icons, styles as _styles
+
+
+# Allow string as well as constant access.  More levels will be added below:
 level_map = {
     'debug': logging.DEBUG,
     'info': logging.INFO,
@@ -34,6 +48,7 @@ class Logger(logging.Logger):
         Singleton logger.
     '''
     default_level = logging.INFO
+    __path__ = __path__  # allows ``python3 -m out.demos`` to work
 
     def configure(self, **kwargs):
         ''' Convenience function to set a number of parameters on this logger
@@ -55,7 +70,9 @@ class Logger(logging.Logger):
                 self.handlers[0].formatter._style._fmt = value
 
             elif kwarg == 'stream':
+                global fg, fx, _CHOSEN_PALETTE
                 self.handlers[0].stream = value
+                fg, fx, _CHOSEN_PALETTE = _find_palettes(value)
 
             elif kwarg == 'theme':
                 if type(value) is str:
@@ -91,7 +108,6 @@ class Logger(logging.Logger):
                     self.error('lexer: ColorFormatter not available.')
 
             else:
-                #~ setattr(self, kwarg, value)
                 raise NameError('unknown keyword argument: %s' % kwarg)
 
     def log_config(self):
@@ -185,8 +201,7 @@ _handler = logging.StreamHandler(stream=_out_file)
 _theme_name = 'interactive' if _is_a_tty else 'production'
 if os.environ.get('TERM') == 'linux':
     _theme_name = 'linux_' + _theme_name
-_formatter = _ColorFormatter(tty=_is_a_tty, ** _themes[_theme_name])
-#~ _formatter.default_msec_format = '%s.%03d'
+_formatter = _ColorFormatter(tty=_is_a_tty, **_themes[_theme_name])
 _handler.setFormatter(_formatter)
 out.addHandler(_handler)
 

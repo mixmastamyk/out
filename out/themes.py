@@ -15,8 +15,7 @@
         'W'
 
 '''
-from console import fg, fx
-
+from . import fg, fx
 
 icons = dict(
 

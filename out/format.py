@@ -35,12 +35,11 @@
 '''
 import logging
 
-from console.style import fx
-
+import out.themes as _themes
+from . import fx
 from .highlight import (highlight as _highlight,
                         term_formatter as _term_formatter,
                         get_lexer_by_name)
-import out.themes as _themes
 
 _end = str(fx.end)
 DATA_SEARCH_INTERVAL = (0, 80)
@@ -79,19 +78,18 @@ class ColorFormatter(logging.Formatter):
         self._theme_style = style if style else _themes.styles['norm']
         self._theme_icons = icons if icons else _themes.icons['rounded']
         self._code_indent = code_indent
-        #~ self._is_a_tty = tty
         self._highlight = self._lexer = None
         if tty:
             if lexer:
                 self._highlight = _highlight
                 self.set_lexer(lexer)
             self._term_formatter = term_formatter or _term_formatter
-
         super().__init__(fmt=fmt, datefmt=datefmt, style=template_style)
 
     def set_lexer(self, name):
-        self._lexer = get_lexer_by_name(name)
-        self._lexer.ensurenl = False
+        if get_lexer_by_name:
+            self._lexer = get_lexer_by_name(name)
+            self._lexer.ensurenl = False
 
     def format(self, record):
         ''' Log color formatting. '''
@@ -171,7 +169,7 @@ class JSONFormatter(logging.Formatter):
 
         fields = self._fields
         data = { name: getattr(record, name) for name in fields }
-        if 'asctime' in data and 'msecs' in data:  # needs option for this
+        if 'asctime' in fields and 'msecs' in fields:  # needs option for this
             data['asctime'] += '.{:03.0f}'.format(data.pop('msecs'))
         s = repr(data)
 

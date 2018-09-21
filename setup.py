@@ -6,7 +6,7 @@ from setuptools import setup
 
 # additional metadata, requirements
 keywords = 'log logging events levels color terminal console standard out err '
-install_requires = ['console',]
+install_requires = ['console>=0.86',]
 tests_require = ('pyflakes', 'readme_renderer'),
 extras_require = dict(
     highlight=('pygments',),

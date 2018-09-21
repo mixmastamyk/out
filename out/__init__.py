@@ -18,8 +18,8 @@ def _find_palettes(stream):
     ''' Need to configure palettes manually, since we are checking stderr '''
     _CHOSEN_PALETTE = choose_palette(stream=stream)
     _palettes = get_available_palettes(_CHOSEN_PALETTE)
-    fg = ForegroundPalette(autodetect=False, palettes=_palettes)
-    fx = EffectsPalette(autodetect=False, palettes=_palettes)
+    fg = ForegroundPalette(palettes=_palettes)
+    fx = EffectsPalette(palettes=_palettes)
     return fg, fx, _CHOSEN_PALETTE
 
 fg, fx, _CHOSEN_PALETTE = _find_palettes(_out_file)

@@ -34,16 +34,17 @@ def test_it(full=True):
 
 print()
 out.configure(level='trace')
+out.debug('version: %r', out.__version__)
 test_it()
 out.log_config()
 
 out.configure(lexer='json')
-out.debug('debug message: JSON:\t{"data": [null, true, false, "hi", 123]}')
+out.debug('debug message: JSON: {"data": [null, true, false, "hi", 123]}')
 
 out.configure(lexer='xml')
-out.trace('debug message: XML:\t<foo><bar attr="woot">baz</bar></foo><!-- hi -->')
+out.trace('debug message: XML: <foo><bar attr="woot">baz</bar></foo><!-- hi -->')
 out.configure(lexer='python3')
-out.note('debug message: PyON:\t%r # hi',
+out.note('debug message: PyON: %r # hi',
          {'data': [None, True, False, 'hi', 123]})
 
 if False:

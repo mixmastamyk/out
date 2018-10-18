@@ -1,6 +1,11 @@
 '''
     out - Simple logging with a few fun features.
     © 2018, Mike Miller - Released under the LGPL, version 3+.
+
+    TODO:
+
+        - Check args and drop text scan?:
+
 '''
 import os
 import sys
@@ -10,17 +15,19 @@ import traceback
 from console.detection import is_a_tty, choose_palette, get_available_palettes
 from console.style import ForegroundPalette, EffectsPalette
 
+__version__ = '0.58a0'
+
 # these vars need to be available for Formatter objects:
 _out_file = sys.stderr
 _is_a_tty = is_a_tty(_out_file)
 
 def _find_palettes(stream):
-    ''' Need to configure palettes manually, since we are checking stderr '''
-    _CHOSEN_PALETTE = choose_palette(stream=stream)
-    _palettes = get_available_palettes(_CHOSEN_PALETTE)
-    fg = ForegroundPalette(palettes=_palettes)
-    fx = EffectsPalette(palettes=_palettes)
-    return fg, fx, _CHOSEN_PALETTE
+    ''' Need to configure palettes manually, since we are checking stderr. '''
+    chosen = choose_palette(stream=stream)
+    palettes = get_available_palettes(chosen)
+    fg = ForegroundPalette(palettes=palettes)
+    fx = EffectsPalette(palettes=palettes)
+    return fg, fx, chosen
 
 fg, fx, _CHOSEN_PALETTE = _find_palettes(_out_file)
 
@@ -45,10 +52,11 @@ level_map = {
 
 class Logger(logging.Logger):
     '''
-        Singleton logger.
+        A singleton logger with centralized configuration.
     '''
     default_level = logging.INFO
-    __path__ = __path__  # allows ``python3 -m out.demos`` to work
+    __path__ = __path__  # allows python3 -m out.demos to work
+    __version__ = __version__  # make available
 
     def configure(self, **kwargs):
         ''' Convenience function to set a number of parameters on this logger
@@ -106,34 +114,34 @@ class Logger(logging.Logger):
                     self.handlers[0].formatter.set_lexer(value)
                 except AttributeError as err:
                     self.error('lexer: ColorFormatter not available.')
-
             else:
                 raise NameError('unknown keyword argument: %s' % kwarg)
 
     def log_config(self):
-        ''' Log the current configuration. '''
+        ''' Log the current logging configuration. '''
         level = self.level
-        self.debug('Logging config:')
-        self.debug('/ name: {}, id:\t{}', self.name, id(self))
-        self.debug('  .level: %s\t(%s)', level_map_int[level], level)
-        self.debug('  .default_level: %s\t(%s)',
-                        level_map_int[self.default_level], self.default_level)
+        debug = self.debug
+        debug('Logging config:')
+        debug('/ name: {}, id: {}', self.name, id(self))
+        debug('  .level: %s (%s)', level_map_int[level], level)
+        debug('  .default_level: %s (%s)',
+                   level_map_int[self.default_level], self.default_level)
+
         for i, handler in enumerate(self.handlers):
             fmtr = handler.formatter
-            self.debug('  + Handler: %s %r', i, handler)
-            self.debug('    + Formatter: %r', fmtr)
-            self.debug('      .datefmt:\t%r', fmtr.datefmt)
-            self.debug('      .msgfmt:\t%r', fmtr._fmt)
-            self.debug('      fmt_style: %r', fmtr._style)
+            debug('  + Handler: %s %r', i, handler)
+            debug('    + Formatter: %r', fmtr)
+            debug('      .datefmt: %r', fmtr.datefmt)
+            debug('      .msgfmt: %r', fmtr._fmt)
+            debug('      fmt_style: %r', fmtr._style)
             try:
-                self.debug('      theme styles:\t%r', fmtr._theme_style)
-                self.debug('      theme icons:\t%r', fmtr._theme_icons)
-                self.debug('      lexer: %r\n', fmtr._lexer)
+                debug('      theme styles: %r', fmtr._theme_style)
+                debug('      theme icons:\n%r', fmtr._theme_icons)
+                debug('      lexer: %r\n', fmtr._lexer)
             except AttributeError:
                 pass
 
     def setLevel(self, level):
-
         if type(level) is int:
             super().setLevel(level)
         else:
@@ -193,7 +201,7 @@ level_map_int = {
     for key, val in level_map.items()
 }
 out.warn = out.warning  # fix warn
-out.setLevel('info')  # lowered to info - note didn't show up by default.
+out.set_level('note')
 
 
 # handler/formatter

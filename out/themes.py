@@ -13,7 +13,6 @@
 
         >>> unicodedata.east_asian_width('💀')
         'W'
-
 '''
 from . import fg, fx
 

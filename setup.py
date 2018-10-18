@@ -1,16 +1,32 @@
-#!/usr/bin/env python3
 import sys
 from os.path import dirname, join
 from setuptools import setup
 
 
+if sys.version_info.major < 3:
+    raise NotImplementedError('Sorry, only Python 3 and above is supported.')
+
+
 # additional metadata, requirements
 keywords = 'log logging events levels color terminal console standard out err '
-install_requires = ['console>=0.86',]
+install_requires = ['console>=0.90',]
 tests_require = ('pyflakes', 'readme_renderer'),
 extras_require = dict(
     highlight=('pygments',),
 )
+
+
+def get_version(filename, version='1.00'):
+    ''' Read version as text to avoid machinations at import time. '''
+    with open(filename) as infile:
+        for line in infile:
+            if line.startswith('__version__'):
+                try:
+                    version = line.split("'")[1]
+                except IndexError:
+                    pass
+                break
+    return version
 
 
 def slurp(filename):
@@ -19,10 +35,6 @@ def slurp(filename):
             return infile.read()
     except FileNotFoundError:
         pass  # needed at upload time, not install time
-
-
-if sys.version_info.major < 3:
-    raise NotImplementedError('Sorry, only Python 3 and above is supported.')
 
 
 setup(
@@ -36,7 +48,7 @@ setup(
     long_description    = slurp('readme.rst'),
     packages            = ('out',),
     url                 = 'https://github.com/mixmastamyk/out',
-    version             = '0.57',
+    version             = get_version('out/__init__.py'),
 
     extras_require      = extras_require,
     install_requires    = install_requires,

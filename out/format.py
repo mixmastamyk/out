@@ -34,6 +34,8 @@
         {icon}              Level-specific icon.
 '''
 import logging
+import re
+from pprint import pformat
 
 import out.themes as _themes
 from . import fx
@@ -42,7 +44,9 @@ from .highlight import (highlight as _highlight,
                         get_lexer_by_name)
 
 _end = str(fx.end)
-DATA_SEARCH_INTERVAL = (0, 80)
+DATA_SEARCH_LIMIT = 80
+json_data_search = re.compile("(\{|\[|')").search
+xml_data_search = re.compile("(<|')").search
 
 
 class ColorFormatter(logging.Formatter):
@@ -90,6 +94,10 @@ class ColorFormatter(logging.Formatter):
         if get_lexer_by_name:
             self._lexer = get_lexer_by_name(name)
             self._lexer.ensurenl = False
+        if name == 'xml':
+            self.data_search = xml_data_search
+        else:
+            self.data_search = json_data_search
 
     def format(self, record):
         ''' Log color formatting. '''
@@ -106,14 +114,17 @@ class ColorFormatter(logging.Formatter):
             message = record.msg.format(*record.args)
 
         # decide to highlight w/ pygments
+        # TODO: Check args and drop text scan?:
         if self._highlight:
-            pos = message.find('\t', *DATA_SEARCH_INTERVAL)
-            if pos != -1:
-                front, back = message[:pos], message[pos+1:]  # Spliten-Sie
-                back = self._highlight(back, self._lexer, self._term_formatter)
+            match = self.data_search(message, 0, DATA_SEARCH_LIMIT)
+            if match:
+                pos = match.start()
+                front, back = message[:pos], message[pos:]  # Spliten-Sie
                 if front.endswith('\n'):                    # indent data?
-                    back = left_indent(back, self._code_indent) + '\n'
-                message = front + ' ' + back  # f'{front} {back}'
+                    back = pformat(record.args)
+                    back = left_indent(back, self._code_indent)
+                back = self._highlight(back, self._lexer, self._term_formatter)
+                message = f'{front}{back}'
 
         record.message = message
         record.on = self._theme_style.get(levelname, '')
@@ -190,7 +201,9 @@ class JSONFormatter(logging.Formatter):
         return s
 
 
-def left_indent(text, indent=12):
+def left_indent(text, indent=12, end='\n'):
     ''' A bit of the ol' ultraviolence  :-/ '''
-    indent=' ' * indent
-    return ''.join((indent + line for line in text.splitlines(True)))
+    indent = ' ' * indent
+    lines = [indent + line for line in text.splitlines(True)]
+    lines.append(end)
+    return ''.join(lines)

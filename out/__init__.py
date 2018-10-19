@@ -15,7 +15,7 @@ import traceback
 from console.detection import is_a_tty, choose_palette, get_available_palettes
 from console.style import ForegroundPalette, EffectsPalette
 
-__version__ = '0.58a0'
+__version__ = '0.58a1'
 
 # these vars need to be available for Formatter objects:
 _out_file = sys.stderr
@@ -208,7 +208,7 @@ _handler = logging.StreamHandler(stream=_out_file)
 _theme_name = 'interactive' if _is_a_tty else 'production'
 if os.environ.get('TERM') == 'linux':
     _theme_name = 'linux_' + _theme_name
-_formatter = _ColorFormatter(tty=_is_a_tty, **_themes[_theme_name])
+_formatter = _ColorFormatter(hl=bool(_CHOSEN_PALETTE), **_themes[_theme_name])
 _handler.setFormatter(_formatter)
 out.addHandler(_handler)
 

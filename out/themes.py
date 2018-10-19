@@ -153,7 +153,7 @@ themes = dict(
     production = dict(
         style = None,
         icons = icons['symbol'],
-        fmt='{asctime}.{msecs:03.0f} {on}{icon:<2} {levelname:<7}{off} '
+        fmt='{asctime}.{msecs:03.0f} {on}{icon:<2}{levelname:<7}{off} '
             '{name}/{funcName}:{lineno} {message}',
         datefmt='%Y-%m-%d %H:%M:%S',
     ),

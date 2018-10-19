@@ -39,13 +39,21 @@ test_it()
 out.log_config()
 
 out.configure(lexer='json')
-out.debug('debug message: JSON: {"data": [null, true, false, "hi", 123]}')
+out.debug('debug message: JSON: %s', '{"data": [null, true, false, "hi", 123]}')
 
 out.configure(lexer='xml')
-out.trace('debug message: XML: <foo><bar attr="woot">baz</bar></foo><!-- hi -->')
+out.trace('debug message: XML: %s', '<foo><bar attr="woot">baz</bar></foo><!-- hi -->')
+
 out.configure(lexer='python3')
-out.note('debug message: PyON: %r # hi',
+out.note('debug message: PyON: %s # hi',
          {'data': [None, True, False, 'hi', 123]})
+out.note('debug message2: PyON: %(data)s # hi',
+         {'data': [None, True, False, 'hi', 123]})
+#~ out.note('debug message: PyON: {} # hi',
+         #~ {'data': [None, True, False, 'hi', 123]})  # Exception
+#~ out.note('debug message: PyON: {} # hi', 1)
+out.note('debug message: PyON: %s # hi', [1, 2, 3])
+
 
 #~ if False:
 if True:

@@ -59,11 +59,11 @@ class ColorFormatter(logging.Formatter):
             icons           - dict of level:value for icons
             style           - dict of level:value for terminal style
             template_style  - log template syntax: %, {, $
-            tty             - if in a tty, to toggle escape sequences
 
             # highlighting
+            hl              - bool, highlight the message
             lexer           - None, or Pygment's lexer: python3', 'json', etc.
-            term_formatter  - None, or pass a configured Pygments formatter.
+            hl_formatter    - None, or pass a configured Pygments formatter.
             code_indent     - If highlighting data with newlines, indent N sp.
     '''
     default_msec_format = '%s.%03d'  # use period decimal point
@@ -74,20 +74,20 @@ class ColorFormatter(logging.Formatter):
                  icons=None,
                  style=None,
                  template_style='{',
-                 tty=True,
+                 hl=True,
                  lexer='python3',
-                 term_formatter=None,
+                 hl_formatter=None,
                  code_indent=12,
         ):
         self._theme_style = style if style else _themes.styles['norm']
         self._theme_icons = icons if icons else _themes.icons['rounded']
         self._code_indent = code_indent
         self._highlight = self._lexer = None
-        if tty:
+        if hl:
             if lexer:
                 self._highlight = _highlight
                 self.set_lexer(lexer)
-            self._term_formatter = term_formatter or _term_formatter
+            self._hl_formatter = hl_formatter or _term_formatter
         super().__init__(fmt=fmt, datefmt=datefmt, style=template_style)
 
     def set_lexer(self, name):
@@ -114,7 +114,7 @@ class ColorFormatter(logging.Formatter):
             message = record.msg.format(*record.args)
 
         # decide to highlight w/ pygments
-        # TODO: Check args and drop text scan?:
+        # TODO: Highlight args directly and drop text scan? - didn't work well.
         if self._highlight:
             match = self.data_search(message, 0, DATA_SEARCH_LIMIT)
             if match:
@@ -123,7 +123,7 @@ class ColorFormatter(logging.Formatter):
                 if front.endswith('\n'):                    # indent data?
                     back = pformat(record.args)
                     back = left_indent(back, self._code_indent)
-                back = self._highlight(back, self._lexer, self._term_formatter)
+                back = self._highlight(back, self._lexer, self._hl_formatter)
                 message = f'{front}{back}'
 
         record.message = message
@@ -160,8 +160,13 @@ class JSONFormatter(logging.Formatter):
 
         (Currently field order requires Python 3.6, but could be backported.)
     '''
-    def __init__(self, datefmt=None, fmt=None):
+    def __init__(self, datefmt=None, fmt=None, hl=True, hl_formatter=None):
         self._fields = fmt.split(',')
+        from json import dumps
+        self.dumps = dumps
+        if hl:
+            self._highlight = _highlight
+            self._hl_formatter = hl_formatter or _term_formatter
         super().__init__(fmt=fmt, datefmt=datefmt)
 
     def format(self, record):
@@ -182,7 +187,10 @@ class JSONFormatter(logging.Formatter):
         data = { name: getattr(record, name) for name in fields }
         if 'asctime' in fields and 'msecs' in fields:  # needs option for this
             data['asctime'] += '.{:03.0f}'.format(data.pop('msecs'))
-        s = repr(data)
+        s = self.dumps(data)
+        if self._highlight:
+            s = self._highlight(s, get_lexer_by_name('JSON'), _term_formatter,
+                                ).rstrip()
 
         # this needs to be here, Formatter class isn't very extensible.
         if record.exc_info:

@@ -1,6 +1,9 @@
 '''
     out - Simple logging with a few fun features.
     © 2018, Mike Miller - Released under the LGPL, version 3+.
+
+    TODO:
+        Reverse ascii icon on Win10.
 '''
 import os
 import sys
@@ -10,7 +13,7 @@ import traceback
 from console.detection import is_a_tty, choose_palette, get_available_palettes
 from console.style import ForegroundPalette, EffectsPalette
 
-__version__ = '0.59'
+__version__ = '0.60'
 
 # these vars need to be available for Formatter objects:
 _out_file = sys.stderr
@@ -203,6 +206,8 @@ _handler = logging.StreamHandler(stream=_out_file)
 _theme_name = 'interactive' if _is_a_tty else 'production'
 if os.environ.get('TERM') == 'linux':
     _theme_name = 'linux_' + _theme_name
+if os.name == 'nt':
+    _theme_name = 'windows_' + _theme_name
 _formatter = _ColorFormatter(hl=bool(_CHOSEN_PALETTE), **_themes[_theme_name])
 _handler.setFormatter(_formatter)
 out.addHandler(_handler)

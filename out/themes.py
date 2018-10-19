@@ -153,7 +153,7 @@ themes = dict(
     production = dict(
         style = None,
         icons = icons['symbol'],
-        fmt='{asctime}.{msecs:03.0f} {on}{icon:<2}{levelname:<7}{off} '
+        fmt='{asctime}.{msecs:03.0f} {on}{levelname:<7}{off} '
             '{name}/{funcName}:{lineno} {message}',
         datefmt='%Y-%m-%d %H:%M:%S',
     ),
@@ -166,7 +166,6 @@ themes = dict(
 
     json = dict(
         fmt='asctime,msecs,levelname,name,funcName,lineno,message',
-        #~ formatter=JSONFormatter,
         datefmt='%Y-%m-%d %H:%M:%S',
     ),
 
@@ -182,8 +181,8 @@ themes = dict(
         icons = icons['ascii'],
         fmt='  {on}{levelname:<7}{off} ' +
             # dark grey, end needed for linux con:
-            fg.lightblack + '{name}/{funcName}:' + fx.end +
-            fg.green + '{lineno:<3}' + fx.end +
+            fg.lightblack('{name}/{funcName}:') +
+            fg.green('{lineno:<3}') +
             ' {message}',
     ),
     linux_production = dict(
@@ -194,3 +193,5 @@ themes = dict(
     ),
 
 )
+themes['windows_interactive'] = themes['linux_interactive']
+themes['windows_production'] = themes['production']

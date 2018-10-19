@@ -15,7 +15,7 @@ import traceback
 from console.detection import is_a_tty, choose_palette, get_available_palettes
 from console.style import ForegroundPalette, EffectsPalette
 
-__version__ = '0.58a1'
+__version__ = '0.58a2'
 
 # these vars need to be available for Formatter objects:
 _out_file = sys.stderr
@@ -86,7 +86,7 @@ class Logger(logging.Logger):
                 if type(value) is str:
                     theme = _themes[value]
                     if value == 'plain':
-                        fmtr =  logging.Formatter(**theme, style='{')
+                        fmtr =  logging.Formatter(style='{', **theme)
                     elif value == 'json':
                         fmtr =  _JSONFormatter(**theme)
                     else:
@@ -95,7 +95,7 @@ class Logger(logging.Logger):
                     if 'style' in value or 'icons' in value:
                         fmtr =  _ColorFormatter(tty=_is_a_tty, **theme)
                     else:
-                        fmtr =  logging.Formatter(**theme, style='{')
+                        fmtr =  logging.Formatter(style='{', **theme)
                 self.handlers[0].setFormatter(fmtr)
 
             elif kwarg == 'icons':

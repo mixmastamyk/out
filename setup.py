@@ -9,7 +9,10 @@ if sys.version_info.major < 3:
 
 # additional metadata, requirements
 keywords = 'log logging events levels color terminal console standard out err '
-install_requires = ['console>=0.90',]
+install_requires = (
+    'console>=0.90',
+    'colorama;            os_name == "nt" and platform_version < "10.0.10586" ',
+)
 tests_require = ('pyflakes', 'readme_renderer'),
 extras_require = dict(
     highlight=('pygments',),

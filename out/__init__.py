@@ -5,7 +5,7 @@
     TODO:
 
         - Check args and drop text scan?:
-
+        - Highlight JSON !
 '''
 import os
 import sys
@@ -96,7 +96,6 @@ class Logger(logging.Logger):
                         fmtr =  _ColorFormatter(tty=_is_a_tty, **theme)
                     else:
                         fmtr =  logging.Formatter(**theme, style='{')
-
                 self.handlers[0].setFormatter(fmtr)
 
             elif kwarg == 'icons':

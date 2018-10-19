@@ -47,34 +47,24 @@ out.configure(lexer='python3')
 out.note('debug message: PyON: %r # hi',
          {'data': [None, True, False, 'hi', 123]})
 
-if False:
+#~ if False:
+if True:
+    print()
+    #~ out.configure(  # monochrome
+        #~ style='mono',
+        #~ msgfmt='{asctime}.{msecs:03.0f} {on}{levelname:<7} '
+                #~ '{name}/{funcName}:{lineno} {message} {off}',
+    #~ )
+    #~ test_it()
 
-    test_it()
-
-    out.log_config()
-
+    #~ print('Set to plain theme, with std formatter for modest speed boost:\n')
     out.configure(
-        style='mono',
-        msgfmt='{asctime}.{msecs:03.0f} {on}{levelname:<7} '
-                '{name}/{funcName}:{lineno} {message} {off}',
-    )
-    test_it()
-
-    print('Set to plain theme, with std formatter for modest speed boost:\n')
-    out.configure(
-        theme='plain',
-        #~ theme='json',
+        #~ theme='plain',
+        theme='json',
     )
     out('no explicit level')
     out.trace('trace msg: %s', 'Absurdly voluminous details…')
     out.debug('debug message')
 
-    #~ print('With msgfmt configured:')
-    #~ print()
-    #~ out.configure(msgfmt='{asctime} {name} {message}')
-    #~ test_it(False)
-
     #~ print('=========== APP OUTPUT ===========')
     #~ print('=========== APP OUTPUT ===========')
-
-

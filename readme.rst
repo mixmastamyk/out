@@ -7,6 +7,13 @@ Fun take on logging for non-huge projects—gets "outta" the way.
 (Why's are covered in the background_ section at the bottom.)
 
 
+Install
+------------
+
+.. code-block:: shell
+
+    ⏵ pip3 install out  # or out[highlight]
+
 
 Features
 ------------
@@ -32,7 +39,7 @@ Not to worry,
 out is more conservative in production mode,
 turned on automatically by redirecting ``stderr``::
 
-    ⏵ python3 script.py |& cat
+    ⏵ python3 script.py |& cat  # bash, fish: ^|
     2018-09-10 17:18:19.123 ✗ ERROR main/func:1 Kerblooey!
 
 
@@ -300,22 +307,21 @@ disabled by setting to ``None``.
 
 **Use:**
 
-Text following a tab (``\t``, in the first 80) characters,
+Message text following a ``{, [, <, or '`` char
 is highlighted with the current
 lexer+formatter:
 
 .. code-block:: python
 
     # default Python3
-    out.debug('PYON data:\t%r',
+    out.debug('PYON data: %r',
               {'data': [None, True, False, 123]})
 
     out.configure(lexer='json')
-    out.debug('JSON data:\t'
+    out.debug('JSON data: '
               '{"data": [null, true, false, 123]}')
 
 (Imagine with lovely ANSI flavors. 😁)
-The tab becomes a single space on output.
 
 
 Tips
@@ -380,9 +386,9 @@ Background
 --------------------------
 
 If you're here it's very likely you already know that the Python standard
-logging module is extremely flexible.
-Awesome,
-however unfortunately overkill for small to medium projects,
+logging module is extremely flexible,
+and that's great and all.
+Unfortunately, it is overkill for small to medium projects,
 and these days many larger ones too.
 Additionally,
 its various Java-isms grate on the nerves,
@@ -406,7 +412,7 @@ Therefore,
 for many (if not most) applications,
 all the complexity and mumbo-jumbo in the logging package documentation about
 multiple loggers with different levels, different handlers, formatters,
-adapters, filters,
+adapters, filters, rotation,
 and complex configuration is flexibility at the *wrong level.*
 In fairness,
 this may not have always been the case,

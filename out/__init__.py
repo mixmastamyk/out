@@ -15,7 +15,7 @@ import traceback
 from console.detection import is_a_tty, choose_palette, get_available_palettes
 from console.style import ForegroundPalette, EffectsPalette
 
-__version__ = '0.58a2'
+__version__ = '0.58a3'
 
 # these vars need to be available for Formatter objects:
 _out_file = sys.stderr

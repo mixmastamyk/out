@@ -218,7 +218,7 @@ as well as styling other fields:
     )
     out.configure(
         style=blue_note,  # ← level styles, field styles ↓
-        msgfmt=bg.blue + '{asctime}' + fx.end + ' {message}',
+        msgfmt=bg.blue('{asctime}') + ' {message}',
     )
     out.note('John Coltrane')
 
@@ -314,7 +314,7 @@ lexer+formatter:
 .. code-block:: python
 
     # default Python3
-    out.debug('PYON data: %r',
+    out.debug('PYON data: %s',
               {'data': [None, True, False, 123]})
 
     out.configure(lexer='json')

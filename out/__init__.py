@@ -1,11 +1,6 @@
 '''
     out - Simple logging with a few fun features.
     © 2018, Mike Miller - Released under the LGPL, version 3+.
-
-    TODO:
-
-        - Check args and drop text scan?:
-        - Highlight JSON !
 '''
 import os
 import sys

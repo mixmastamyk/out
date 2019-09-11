@@ -37,16 +37,15 @@ import logging
 import re
 from pprint import pformat
 
-import out.themes as _themes
+from . import themes
 from . import fx
-from .highlight import (highlight as _highlight,
-                        term_formatter as _term_formatter,
-                        get_lexer_by_name)
+from . import highlight
 
-_end = str(fx.end)
 DATA_SEARCH_LIMIT = 80
-json_data_search = re.compile("(\{|\[|')").search
-xml_data_search = re.compile("(<|')").search
+_end = str(fx.end)
+json_data_search = re.compile(r"(\{|\[|')").search
+xml_data_search = re.compile(r"(<|')").search
+pyt_data_search = re.compile(r"(\(|:|;)").search
 
 
 class ColorFormatter(logging.Formatter):
@@ -61,7 +60,7 @@ class ColorFormatter(logging.Formatter):
             template_style  - log template syntax: %, {, $
 
             # highlighting
-            hl              - bool, highlight the message
+            hl              - bool, highlight the message.
             lexer           - None, or Pygment's lexer: python3', 'json', etc.
             hl_formatter    - None, or pass a configured Pygments formatter.
             code_indent     - If highlighting data with newlines, indent N sp.
@@ -69,35 +68,42 @@ class ColorFormatter(logging.Formatter):
     default_msec_format = '%s.%03d'  # use period decimal point
 
     def __init__(self,
-                 datefmt=None,
-                 fmt=None,
-                 icons=None,
-                 style=None,
-                 template_style='{',
-                 hl=True,
-                 lexer='python3',
-                 hl_formatter=None,
-                 code_indent=12,
+            code_indent=12,
+            datefmt=None,
+            fmt=None,
+            hl=True,
+            hl_formatter=None,
+            palette=None,
+            icons=None,
+            lexer='python3',
+            style=None,
+            template_style='{',
         ):
-        self._theme_style = style if style else _themes.styles['norm']
+        self._theme_style = style if style else themes.render_styles(palette)['norm']
         self._theme_icons = icons if icons else _themes.icons['rounded']
         self._code_indent = code_indent
         self._highlight = self._lexer = None
         if hl:
+            print('*** hl:', hl)
             if lexer:
-                self._highlight = _highlight
+                self._highlight = highlight.highlight
                 self.set_lexer(lexer)
-            self._hl_formatter = hl_formatter or _term_formatter
+            self._hl_formatter = hl_formatter or highlight.get_term_formatter(palette)
+        else:
+            print('*** hl:', hl)
+            self.format = self.format_plain  # disable highlighting
         super().__init__(fmt=fmt, datefmt=datefmt, style=template_style)
 
     def set_lexer(self, name):
-        if get_lexer_by_name:
-            self._lexer = get_lexer_by_name(name)
+        if highlight.get_lexer_by_name:
+            self._lexer = highlight.get_lexer_by_name(name)
             self._lexer.ensurenl = False
         if name == 'xml':
             self.data_search = xml_data_search
-        else:
+        elif name == 'json':
             self.data_search = json_data_search
+        else:
+            self.data_search = pyt_data_search
 
     def format(self, record):
         ''' Log color formatting. '''
@@ -106,6 +112,8 @@ class ColorFormatter(logging.Formatter):
             levelname = record.levelname = 'FATAL'
         if self.usesTime():
             record.asctime = self.formatTime(record, self.datefmt)
+        if record.funcName == '<module>':
+            record.funcName = ''
 
         # render the message part with arguments
         try:  # Allow {} style - need a faster way to determine this:
@@ -126,13 +134,53 @@ class ColorFormatter(logging.Formatter):
                 back = self._highlight(back, self._lexer, self._hl_formatter)
                 message = f'{front}{back}'
 
+        # style the level, icon
         record.message = message
         record.on = self._theme_style.get(levelname, '')
         record.icon = self._theme_icons.get(levelname, '')
         record.off = _end
         s = self.formatMessage(record)
 
-        # this needs to be here, Formatter class isn't very extensible.
+        # this needs to be here, Formatter class not very granular.
+        if record.exc_info:
+            # Cache the traceback text to avoid converting it multiple times
+            # (it's constant anyway)
+            if not record.exc_text:
+                record.exc_text = self.formatException(record.exc_info)
+        if record.exc_text:
+            if s[-1:] != "\n":
+                s = s + "\n"
+            s = s + record.exc_text
+        if record.stack_info:
+            if s[-1:] != "\n":
+                s = s + "\n"
+            s = s + self.formatStack(record.stack_info)
+        return s
+
+    def format_plain(self, record):
+        ''' Log formatting. '''
+        levelname = record.levelname    # len7 limit
+        if levelname == 'CRITICAL':
+            levelname = record.levelname = 'FATAL'
+        if self.usesTime():
+            record.asctime = self.formatTime(record, self.datefmt)
+        if record.funcName == '<module>':
+            record.funcName = ''
+
+        # render the message part with arguments
+        try:  # Allow {} style - need a faster way to determine this:
+            message = record.getMessage()
+        except TypeError:
+            message = record.msg.format(*record.args)
+
+        # style the level, icon
+        record.message = message
+        record.on = ''
+        record.icon = self._theme_icons.get(levelname, '')
+        record.off = ''
+        s = self.formatMessage(record)
+
+        # this needs to be here, Formatter class not very granular.
         if record.exc_info:
             # Cache the traceback text to avoid converting it multiple times
             # (it's constant anyway)
@@ -160,13 +208,13 @@ class JSONFormatter(logging.Formatter):
 
         (Currently field order requires Python 3.6, but could be backported.)
     '''
-    def __init__(self, datefmt=None, fmt=None, hl=True, hl_formatter=None):
+    def __init__(self, datefmt=None, fmt=None, palette=None, hl=True, hl_formatter=None):
         self._fields = fmt.split(',')
         from json import dumps
         self.dumps = dumps
         if hl:
-            self._highlight = _highlight
-            self._hl_formatter = hl_formatter or _term_formatter
+            self._highlight = highlight.highlight
+            self._hl_formatter = hl_formatter or highlight.get_term_formatter(palette)
         super().__init__(fmt=fmt, datefmt=datefmt)
 
     def format(self, record):
@@ -189,8 +237,9 @@ class JSONFormatter(logging.Formatter):
             data['asctime'] += '.{:03.0f}'.format(data.pop('msecs'))
         s = self.dumps(data)
         if self._highlight:
-            s = self._highlight(s, get_lexer_by_name('JSON'), _term_formatter,
-                                ).rstrip()
+            s = self._highlight(s, highlight.get_lexer_by_name('JSON'),
+                    self._hl_formatter,
+                ).rstrip()
 
         # this needs to be here, Formatter class isn't very extensible.
         if record.exc_info:

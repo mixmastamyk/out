@@ -3,73 +3,105 @@
     © 2018, Mike Miller - Released under the LGPL, version 3+.
 
     Highlighting with Pygments!
+
+    pygments_color_name_mapping = {  # old names --> new
+        'darkred'    : 'red',
+        'darkgreen'  : 'green',
+        'brown'      : 'yellow',
+        'darkblue'   : 'blue',
+        'purple'     : 'magenta',
+        'teal'       : 'cyan',
+        'lightgray'  : 'gray',
+        'darkgray'   : 'brightblack',
+        'red'        : 'brightred',
+        'green'      : 'brightgreen',
+        'yellow'     : 'brightyellow',
+        'blue'       : 'brightblue',
+        'fuchsia'    : 'brightmagenta',
+        'turquoise'  : 'brightcyan',
+        'darkyellow' : 'yellow',
+        'darkteal'   : 'brightcyan',
+        'fuscia'     : 'brightmagenta',
+    }
+
 '''
-from . import _CHOSEN_PALETTE
-
-
 try:
-    if _CHOSEN_PALETTE:
-        from pygments import highlight
-        from pygments.lexers import get_lexer_by_name
-        from pygments.token import (Keyword, Name, Comment, String, Error,
-                                    Number, Operator, Generic, Token, Punctuation)
+    from pygments import highlight
+    from pygments.lexers import get_lexer_by_name
+    from pygments.token import (Keyword, Name, Comment, String, Error,
+                                Number, Operator, Punctuation,
+                                Token, Generic, Whitespace)
+except ImportError:
+    highlight = get_lexer_by_name = None
+
+
+def get_term_formatter(_CHOSEN_PALETTE):
+    ''' Build formatter according to environment. '''
+    term_formatter = None
+
+    if _CHOSEN_PALETTE and highlight:
 
         if _CHOSEN_PALETTE in ('extended', 'truecolor'):
+
             from pygments.formatters import Terminal256Formatter
             from pygments.style import Style
 
-            class AStyle(Style):
+            class OutStyle(Style):
                 styles = {
-                    Token.String:           '#b52',  # orange, amber
-                    Comment:                'italic #777',
+                    Comment:                'italic ansibrightblack',
+                    Keyword:                'bold #4ac',  # light blue
+                    Keyword.Constant:       'nobold ansicyan',
+                    Number:                 'ansigreen',
 
-                    Keyword:                'bold #ansiblue',
-                    Keyword.Constant:       'nobold #ansiteal',
-                    Number:                 '#ansidarkgreen',
+                    Name.Tag:               '#4ac',  # light blue, xml, json
+                    Name.Attribute:         '#4ac',  # light blue
 
-                    Name.Tag:               '#ansipurple',
-                    Name.Attribute:         '#ansipurple',
-                    Punctuation:            'nobold #db5',
+                    Operator:               'nobold #b94',
+                    Operator.Word:          'bold #4ac',
+                    Punctuation:            'nobold #b94',
+
+                    String:                 'ansibrightmagenta',  # amber
+                    Generic.String:         'ansired',
                 }
-            term_formatter = Terminal256Formatter(style=AStyle)
+            term_formatter = Terminal256Formatter(style=OutStyle)
 
         elif _CHOSEN_PALETTE == 'basic':
+
             from pygments.formatters import TerminalFormatter
 
-            TERMINAL_COLORS = {     # dark-bg      # light-bg
-                Token:              ('',            ''),
+            _default = ('', '')
+            _TERMINAL_COLORS = {
+                Comment.Preproc:    _default,
+                Name:               _default,
+                Token:              _default,
+                Whitespace:         _default,
+                Generic.Heading:    ('**',                  '**'),
 
-                Comment:            ('darkgray',    'darkgray'),
-                Comment.Preproc:    ('teal',        'turquoise'),
+                Comment:            ('brightblack',         'brightblack'),
+                Keyword:            ('*brightblue*',        '*brightblue*'),
+                Keyword.Constant:   ('cyan',                'cyan'),
+                Keyword.Type:       ('cyan',                'cyan'),
+                Operator:           ('yellow',              'yellow'),
+                Operator.Word:      ('*brightblue*',        '*brightblue*'),
 
-                Keyword.Constant:   ('teal',        'turquoise'),
-                Keyword:            ('*darkblue*',   'blue'),
-                Keyword.Type:       ('teal',        'turquoise'),
-                Name.Attribute:     ('purple',    'fuchsia'),
-                Name.Builtin.Pseudo:('teal',        'turquoise'),
-                Name.Builtin:       ('teal',        'turquoise'),
-                Name.Decorator:     ('fuchsia',     'purple'),
-                Name.Exception:     ('teal',        'turquoise'),
-                Name.Namespace:     ('',            ''),
-                Name.Tag:           ('purple',    'fuchsia'),
-                Name.Variable:      ('darkred',     'red'),
-                Number:             ('darkgreen',     'green'),
-                #~ Operator:           ('brown',      'yellow'),  # :-/
-                Operator.Word:      ('*darkblue*',   'blue'),
-                #~ Punctuation:        ('brown',      'yellow'),
-                String:             ('purple',       'fuchsia'),
+                Name.Builtin:       ('cyan',                'cyan'),
+                Name.Decorator:     ('magenta',             'magenta'),
+                Name.Tag:           ('brightblue',          'brightblue'),
+                Name.Attribute:     ('brightblue',          'brightblue'),
 
-                Generic.Deleted:    ('darkred',     'red'),
-                Generic.Inserted:   ('darkgreen',   'green'),
-                Generic.Heading:    ('**',          '**'),
-                Generic.Subheading: ('*purple*',    '*fuchsia*'),
-                Generic.Error:      ('red',         'red'),
-                Error:              ('_red_',       '_red_'),
+                String:             ('brightmagenta',       'brightmagenta'),
+                Number:             ('green',               'green'),
+
+                Generic.Deleted:    ('red',                 'brightred'),
+                Generic.Inserted:   ('green',               'brightgreen'),
+                Generic.Error:      ('brightred',           'brightred'),
+
+                Error:              ('_brightred_',         '_brightred_'),
             }
-            term_formatter = TerminalFormatter(colorscheme=TERMINAL_COLORS)
 
-    else:
-        raise RuntimeError('color support not available.')
+            term_formatter = TerminalFormatter(
+                bg='dark',
+                colorscheme=_TERMINAL_COLORS,
+            )
 
-except (ImportError, RuntimeError):
-    highlight = term_formatter = get_lexer_by_name = None
+    return term_formatter

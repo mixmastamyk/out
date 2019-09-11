@@ -2,7 +2,7 @@
 Out
 ===========
 
-Fun take on logging for non-huge projects—gets "outta" the way.
+Fun take on logging for non-huge projects—out gets "outta" the way!
 
 (Why's are covered in the background_ section at the bottom.)
 
@@ -20,7 +20,7 @@ Features
 
 First of all,
 out is concise as hell,
-basically a singleton logger ready on import.
+basically a singleton logger configuration ready on import.
 In interactive mode:
 
 .. code-block:: python
@@ -36,11 +36,30 @@ In interactive mode:
 (Imagine with nice ANSI colors. 😁)
 Out has simple themes for message formats, styles, and icons.
 Not to worry,
-out is more conservative in production mode,
-turned on automatically by redirecting ``stderr``::
+out is more conservative in "production mode,"
+which may be turned on automatically by redirecting ``stderr``:
 
-    ⏵ python3 script.py |& cat  # bash, fish: ^|
+.. code-block:: shell
+
+    ⏵ python3 script.py |& cat  # bash, for fish use: ^|
     2018-09-10 17:18:19.123 ✗ ERROR main/func:1 Kerblooey!
+
+
+.. note::
+
+    This is a library to simplify logging configuration for *applications.*
+
+    Libraries and independent modules should continue on logging *messages* as
+    they always have:
+
+    .. code-block:: python
+
+        import logging
+
+        log = logging.getLogger(__name__)
+
+        # do not configure loggers, just use:
+        log.debug('foo')
 
 
 Colors, Highlighting, Unicode Icons
@@ -61,33 +80,89 @@ Useful defaults, and easy to configure!
 .. code-block:: python
 
     >>> out.configure(
-            level='note',           # or int
-            default_level='info',   # out('…')
-            datefmt='…',            # strftime
-            msgfmt='…',             # see below
-            stream=file,            # stderr
+            level='note',           # level messages passed: str/int
+            default_level='info',   # when called w/o a method: out('…')
+            datefmt='…',            # see strftime
+            msgfmt='…',             # see logging and below
+            stream=file,            # stderr is default
 
             theme=name|dict,        # see below
             icons=name|dict,        #   about themes
             style=name|dict,
-            lexer='python3',        # highlighting
+            lexer='python3',        # optional highlighting
         )
 
+We'll go into more detail below.
 
-.. note::
 
-    This is a library to simplify logging for the main script of
-    *applications.*
+Log Message Format
+~~~~~~~~~~~~~~~~~~~
 
-    Libraries/modules should continue on as they always have:
+By default out supports the curly-brace ``{}`` formatting style for both the
+log message format and message template,
+as it is a bit easier to read than printf-style.
+Field definitions are found in the Python
+`logging docs <https://docs.python.org/3/library/logging.html#logrecord-attributes>`_::
 
-    .. code-block:: python
+    {asctime}           Textual time when the LogRecord created.
+    {msecs}             Millisecond portion of the creation time
+    {filename}          Filename portion of pathname
+    {funcName}          Function name
+    {lineno)            Source line number where called.
+    {levelno}           Numeric logging level for the message
+    {levelname}         Text logging level for the message
+    {pathname}          Full path of the source file called.
+    {message}           The result of record.getMessage().
+    {module}            Module (name portion of filename)
+    {name}              Name of the logger (logging channel)
 
-        import logging
+Use of the
+``out.format.ColorFormatter`` class adds these additional fields::
 
-        log = logging.getLogger(__name__)
-        # do not configure loggers, just use:
-        log.debug('foo')
+    {on}{icon}{off}     Per-level style and icon support.
+
+For example:
+
+.. code-block:: python
+
+    out.configure(
+        msgfmt='{on}{icon}{levelname:<7}{off} {message}',
+    )
+
+
+DateTime Format
+++++++++++++++++++
+
+These are configuable via the standard
+`strftime <https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior>`_
+syntax and the
+``datefmt`` keyword to ``configure``.
+
+.. code-block:: python
+
+    out.configure(
+        datefmt='%y-%m-%d %H:%M:%S',
+    )
+
+
+Message:
+++++++++++++++++++
+
+When writing messages, printf ``%`` formatting style is supported as well
+due to compatibility requirements with a majority of libraries:
+
+.. code-block:: python
+
+    out.warn('foo: %s', bar)
+    out.warn('foo: {}', bar)
+
+The second form may be used also,
+though it will be a tiny bit slower,
+since the printf-style must be tried first.
+
+You'll want to use one of these forms,
+as (in logging) they skip formatting of the string when the message isn't
+sent.
 
 
 Levels++
@@ -108,84 +183,29 @@ Commonly requested:
   unlike the standard warning,
   which could encourage the viewer to worry.  e.g.:
 
-  | ``NOTE`` - Token is ABCXYZ, rather than…
-  | ``WARNING`` - Token is ABCXYZ.
+      | ``NOTE`` - Token is ABCXYZ, rather than…
+      | ``WARNING`` - Token is ABCXYZ.
 
 - ``EXCEPT``, to differentiate common from unexpected errors.
   Think ``FileNotFound`` vs. ``Exception``.
 
-- ``FATAL``, a renaming of ``CRITICAL``,
+- ``FATAL``, an alias of ``CRITICAL``,
   since that name is long, pushes alignment,
-  and does not capture message intent as well as fatal.
+  and does not capture intent as well as fatal.
   Std-lib already allows this but still labels it critical on output.
   Out does not.
-
-
-Templating
-~~~~~~~~~~~~
-
-**Log Format:**
-
-By default out supports the ``{}`` formatting style for both the log template
-and message fields,
-as it is a bit easier to read.
-Most fields are found in the Python
-`logging docs. <https://docs.python.org/3/library/logging.html#logrecord-attributes>`_::
-
-    {asctime}           Textual time when the LogRecord created.
-    {msecs}             Millisecond portion of the creation time
-    {filename}          Filename portion of pathname
-    {funcName}          Function name
-    {lineno)            Source line number where called.
-    {levelno}           Numeric logging level for the message
-    {levelname}         Text logging level for the message
-    {pathname}          Full path of the source file called.
-    {message}           The result of record.getMessage().
-    {module}            Module (name portion of filename)
-    {name}              Name of the logger (logging channel)
-
-Use of
-``out.format.ColorFormatter`` adds these additional fields::
-
-    {on}{icon}{off}     Level-style and icon support.
-
-For example:
-
-.. code-block:: python
-
-    out.configure(
-        msgfmt='{on}{icon}{levelname:<7}{off} {message}'
-    )
-
-
-**Message:**
-
-When writing messages, printf ``%`` formatting style is supported as well
-due to compatibility requirements with a majority of libraries:
-
-.. code-block:: python
-
-    out.warn('foo: %s', bar)
-    out.warn('foo: {}', bar)
-
-The second form may be used also,
-though it will be a tiny bit slower,
-since the printf style is tried first.
-
-
-DateTime Format
-++++++++++++++++++
-
-These are configuable via
-`strftime <https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior>`_
-syntax and the
-``datefmt`` keyword to ``configure``.
 
 
 Themes
 ~~~~~~~~~~~~~~~~~~
 
-Themes are simply dictionaries with one entry per level:
+
+Icons and Styles
++++++++++++++++++
+
+``out`` can be themed with icon sets and/or styles and are simply dictionaries
+with one entry per level.
+
 
 .. code-block:: python
 
@@ -217,29 +237,31 @@ as well as styling other fields:
         # other levels…
     )
     out.configure(
-        style=blue_note,  # ← level styles, field styles ↓
+        style=blue_note,  # ← level styles, ↓ field styles
         msgfmt=bg.blue('{asctime}') + ' {message}',
     )
     out.note('John Coltrane')
 
+
+Creating and Using Themes
+++++++++++++++++++++++++++
+
 A full theme is the whole kit together in a mapping—\
-styles, icons, and templates:
+styles, icons, ``message`` and/or ``datefmt`` templates:
 
 .. code-block:: python
 
-    >>> interactive = {
+    >>> interactive_theme = {
      'style': {},  # level:value mapping, see above
      'icons': {},  # level:value
      'fmt': '{asctime} {icon} {message}',  # message format
-     'datefmt': '%H:%M:%S',  # date format,
+     'datefmt': '%H:%M:%S',  # date/time format,
     }
 
-Using Themes
-++++++++++++++
 
 In the ``configure`` method of the out logger,
 to use a theme from the themes module,
-simply specify one by name:
+simply specify an existing one by name:
 
 .. code-block:: python
 
@@ -247,12 +269,12 @@ simply specify one by name:
             theme='production',
         )
 
-Or by setting a custom mapping:
+Or by setting a custom mapping, as created above:
 
 .. code-block:: python
 
     >>> out.configure(
-            theme=interactive,  # or perhaps just icons:
+            theme=interactive_theme,  # or perhaps just icons:
             icons=dict(DEBUG='• ', INFO='✓ ', WARNING='⚠ ', ) # …
         )
 
@@ -285,10 +307,10 @@ Full themes:
 
     When there are conflicting arguments to the ``configure`` method,
     the last specified will win.
-    This requires > Python 3.6, due to ordered keyword args.
-    Below this version it is not recommended to do this since keyword order
+    This requires a Python version >=3.6, due to ordered keyword args.
+    Below this version it is not recommended to try since keyword order
     will be undefined and therefore the result.
-    One workaround is to call configure twice.
+    One workaround, call ``configure()`` twice.
 
 
 Syntax Highlighting w/Pygments
@@ -304,6 +326,7 @@ A lexer may be
 `selected by name <http://pygments.org/docs/lexers/>`_
 via ``configure(lexer=LEXER_NAME)``,
 disabled by setting to ``None``.
+Some common lexer names are: ``('json', 'python3', 'xml')``.
 
 **Use:**
 
@@ -313,12 +336,14 @@ lexer+formatter:
 
 .. code-block:: python
 
+    out.configure(level='trace')
+
     # default Python3
-    out.debug('PYON data: %s',
+    out.trace('PYON data: %s',
               {'data': [None, True, False, 123]})
 
     out.configure(lexer='json')
-    out.debug('JSON data: '
+    out.trace('JSON data: '
               '{"data": [null, true, false, 123]}')
 
 (Imagine with lovely ANSI flavors. 😁)
@@ -331,13 +356,28 @@ Tips
   The reason being that when used in an interactive script normal application
   output may be easily segregated from log messages during redirection.
 
-  Configurable via the ``stream`` keyword to ``.configure()``.
+  .. code-block:: shell
 
-- Upgrading a long script from ``print()`` is easy::
+    # bash, fish
+    ⏵ script.py 2> logfile.txt
+
+  Configurable via the ``stream`` keyword to ``.configure()``:
+
+  .. code-block:: python
+
+      import sys, out
+
+      out.configure(
+          stream=sys.stdout,
+      )
+
+- Upgrading a long script from ``print()`` is easy:
+
+  .. code-block:: python
 
     import out
 
-    print = out.info  # or other level
+    print = out  # or other level: out.note
 
   Or perhaps some logging was already added, but you'd like to downsize.
   Add this to your main script::
@@ -387,7 +427,7 @@ Background
 
 If you're here it's very likely you already know that the Python standard
 logging module is extremely flexible,
-and that's great and all.
+and that's great.
 Unfortunately, it is overkill for small to medium projects,
 and these days many larger ones too.
 Additionally,
@@ -401,11 +441,11 @@ patterns for daemons and services
 means that simply logging to stdout/err is expected and desired
 for portability:
 
-    A twelve-factor app never concerns itself with routing or storage of its
+    *A twelve-factor app never concerns itself with routing or storage of its
     output stream. It should not attempt to write to or manage logfiles.
     Instead, each running process writes its event stream, unbuffered, to
     stdout. During local development, the developer will view this stream in
-    the foreground of their terminal to observe the app’s behavior.
+    the foreground of their terminal to observe the app’s behavior.*
 
 
 Therefore,
@@ -413,8 +453,8 @@ for many (if not most) applications,
 all the complexity and mumbo-jumbo in the logging package documentation about
 multiple loggers with different levels, different handlers, formatters,
 adapters, filters, rotation,
-and complex configuration is flexibility at the *wrong level.*
-In fairness,
+and complex configuration is flexibility at the *wrong level!*
+ In fairness,
 this may not have always been the case,
 and can still be helpful, perhaps on Windows.
 

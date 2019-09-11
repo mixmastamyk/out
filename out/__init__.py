@@ -1,41 +1,27 @@
 '''
     out - Simple logging with a few fun features.
-    © 2018, Mike Miller - Released under the LGPL, version 3+.
-
-    TODO:
-        Reverse ascii icon on Win10.
+    © 2018-19, Mike Miller - Released under the LGPL, version 3+.
 '''
 import os
 import sys
 import logging
 import traceback
 
-from console.detection import is_a_tty, choose_palette, get_available_palettes
-from console.style import ForegroundPalette, EffectsPalette
+from .detection import _find_palettes
 
-__version__ = '0.60'
-
-# these vars need to be available for Formatter objects:
 _out_file = sys.stderr
-_is_a_tty = is_a_tty(_out_file)
+fg, fx, _CHOSEN_PALETTE, _is_a_tty  = _find_palettes(_out_file)
 
-def _find_palettes(stream):
-    ''' Need to configure palettes manually, since we are checking stderr. '''
-    chosen = choose_palette(stream=stream)
-    palettes = get_available_palettes(chosen)
-    fg = ForegroundPalette(palettes=palettes)
-    fx = EffectsPalette(palettes=palettes)
-    return fg, fx, chosen
-
-fg, fx, _CHOSEN_PALETTE = _find_palettes(_out_file)
 
 # now we're ready to import these:
 from .format import (ColorFormatter as _ColorFormatter,
                      JSONFormatter as _JSONFormatter)
-from .themes import themes as _themes, icons as _icons, styles as _styles
+from .themes import render_themes, render_styles, icons as _icons
 
 
-# Allow string as well as constant access.  More levels will be added below:
+__version__ = '0.70a1'
+
+# Allow string as well as constant access.  Levels will be added below:
 level_map = {
     'debug': logging.DEBUG,
     'info': logging.INFO,
@@ -53,8 +39,9 @@ class Logger(logging.Logger):
         A singleton logger with centralized configuration.
     '''
     default_level = logging.INFO
-    __path__ = __path__  # allows python3 -m out.demos to work
-    __version__ = __version__  # make available
+    __path__ = __path__         # allows python3 -m out.demos to work
+    __version__ = __version__
+    __name__ = __name__
 
     def configure(self, **kwargs):
         ''' Convenience function to set a number of parameters on this logger
@@ -76,22 +63,27 @@ class Logger(logging.Logger):
                 self.handlers[0].formatter._style._fmt = value
 
             elif kwarg == 'stream':
+                print('*** stream:', value)
                 global fg, fx, _CHOSEN_PALETTE
                 self.handlers[0].stream = value
-                fg, fx, _CHOSEN_PALETTE = _find_palettes(value)
+                fg, fx, _CHOSEN_PALETTE, is_a_tty = _find_palettes(value)
+                print('*** _add_handler start, palette: %r' % _CHOSEN_PALETTE)
+                _add_handler(value, is_a_tty)#, theme=None)
+                print('*** _add_handler done')
 
             elif kwarg == 'theme':
                 if type(value) is str:
-                    theme = _themes[value]
+                    # this section should be reconciled with _add_handler
+                    theme = render_themes(self.handlers[0].stream)[value]
                     if value == 'plain':
                         fmtr =  logging.Formatter(style='{', **theme)
                     elif value == 'json':
                         fmtr =  _JSONFormatter(**theme)
                     else:
-                        fmtr =  _ColorFormatter(tty=_is_a_tty, **theme)
+                        fmtr =  _ColorFormatter(**theme)
                 elif type(value) is dict:
                     if 'style' in value or 'icons' in value:
-                        fmtr =  _ColorFormatter(tty=_is_a_tty, **theme)
+                        fmtr =  _ColorFormatter(**theme)
                     else:
                         fmtr =  logging.Formatter(style='{', **theme)
                 self.handlers[0].setFormatter(fmtr)
@@ -103,13 +95,13 @@ class Logger(logging.Logger):
 
             elif kwarg == 'style':
                 if type(value) is str:
-                    value = _styles[value]
+                    value = render_styles(self.handlers[0].stream)[value]
                 self.handlers[0].formatter._theme_style = value
 
             elif kwarg == 'lexer':
                 try:
                     self.handlers[0].formatter.set_lexer(value)
-                except AttributeError as err:
+                except AttributeError:
                     self.error('lexer: ColorFormatter not available.')
             else:
                 raise NameError('unknown keyword argument: %s' % kwarg)
@@ -118,8 +110,8 @@ class Logger(logging.Logger):
         ''' Log the current logging configuration. '''
         level = self.level
         debug = self.debug
-        debug('Logging config:')
-        debug('/ name: {}, id: {}', self.name, id(self))
+        debug('out logging config, version: %r', __version__)
+        debug('/ name: {}, id: {}', self.name, hex(id(self)))
         debug('  .level: %s (%s)', level_map_int[level], level)
         debug('  .default_level: %s (%s)',
                    level_map_int[self.default_level], self.default_level)
@@ -130,10 +122,10 @@ class Logger(logging.Logger):
             debug('    + Formatter: %r', fmtr)
             debug('      .datefmt: %r', fmtr.datefmt)
             debug('      .msgfmt: %r', fmtr._fmt)
-            debug('      fmt_style: %r', fmtr._style)
+            debug('      fmt_style: %s', fmtr._style)
             try:
                 debug('      theme styles: %r', fmtr._theme_style)
-                debug('      theme icons:\n%r', fmtr._theme_icons)
+                debug('      theme icons: %r', fmtr._theme_icons)
                 debug('      lexer: %r\n', fmtr._lexer)
             except AttributeError:
                 pass
@@ -146,6 +138,7 @@ class Logger(logging.Logger):
     set_level = setLevel
 
     def __call__(self, message, *args):
+        ''' Call logger directly, without function. '''
         if self.isEnabledFor(self.default_level):
             self._log(self.default_level, message, args)
 
@@ -202,15 +195,26 @@ out.set_level('note')
 
 
 # handler/formatter
-_handler = logging.StreamHandler(stream=_out_file)
-_theme_name = 'interactive' if _is_a_tty else 'production'
-if os.environ.get('TERM') == 'linux':
-    _theme_name = 'linux_' + _theme_name
-if os.name == 'nt':
-    _theme_name = 'windows_' + _theme_name
-_formatter = _ColorFormatter(hl=bool(_CHOSEN_PALETTE), **_themes[_theme_name])
-_handler.setFormatter(_formatter)
-out.addHandler(_handler)
+def _add_handler(out_file, is_a_tty, theme='auto'):
+    ''' Repeatable handler config. '''
+    out.handlers = []  # clear any old
+    _handler = logging.StreamHandler(stream=out_file)
+    if theme == 'auto':
+        _theme_name = 'interactive' if is_a_tty else 'production'
+        if os.environ.get('TERM') == 'linux':
+            _theme_name = 'linux_' + _theme_name
+        if os.name == 'nt':
+            _theme_name = 'windows_' + _theme_name
+        theme = render_themes(out_file)[_theme_name]
+
+    #~ print('ttt:', theme)
+    _formatter = _ColorFormatter(hl=bool(_CHOSEN_PALETTE),
+                                 palette=_CHOSEN_PALETTE, **theme)
+
+    _handler.setFormatter(_formatter)
+    out.addHandler(_handler)
+
+_add_handler(_out_file, _is_a_tty)
 
 # save original module for later, in case it's needed.
 out._module = sys.modules[__name__]

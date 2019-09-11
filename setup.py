@@ -15,7 +15,7 @@ install_requires = (
 )
 tests_require = ('pyflakes', 'readme_renderer'),
 extras_require = dict(
-    highlight=('pygments',),
+    highlight=('pygments>=2.4.0',),
 )
 
 
@@ -60,7 +60,7 @@ setup(
     tests_require       = tests_require,
 
     classifiers         = [
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Console',
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',

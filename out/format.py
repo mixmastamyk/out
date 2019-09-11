@@ -80,7 +80,7 @@ class ColorFormatter(logging.Formatter):
             template_style='{',
         ):
         self._theme_style = style if style else themes.render_styles(palette)['norm']
-        self._theme_icons = icons if icons else _themes.icons['rounded']
+        self._theme_icons = icons if icons else themes.icons['rounded']
         self._code_indent = code_indent
         self._highlight = self._lexer = None
         if hl:

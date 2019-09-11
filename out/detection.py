@@ -1,13 +1,9 @@
-
-#~ import os
-#~ import sys
-
+'''
+    out - Simple logging with a few fun features.
+    © 2018-19, Mike Miller - Released under the LGPL, version 3+.
+'''
 from console.detection import is_a_tty, choose_palette, get_available_palettes
 from console.style import ForegroundPalette, EffectsPalette
-
-# these vars need to be available for Formatter objects:
-#~ _out_file = sys.stderr
-
 
 
 def _find_palettes(stream):
@@ -17,5 +13,3 @@ def _find_palettes(stream):
     fg = ForegroundPalette(palettes=palettes)
     fx = EffectsPalette(palettes=palettes)
     return fg, fx, chosen, is_a_tty(stream)
-
-#~ fg, fx, _CHOSEN_PALETTE = _find_palettes(_out_file)

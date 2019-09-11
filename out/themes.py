@@ -1,6 +1,6 @@
 '''
     out - Simple logging with a few fun features.
-    © 2018, Mike Miller - Released under the LGPL, version 3+.
+    © 2018-19, Mike Miller - Released under the LGPL, version 3+.
 
     This module contains themes for colors, icons, message and date formats.
     They can be used separately, or together as a "full" theme.
@@ -15,7 +15,6 @@
         'W'
 '''
 from .detection import _find_palettes
-#~ from . import fg, fx
 
 icons = dict(
 
@@ -32,71 +31,72 @@ icons = dict(
         NOTSET   = '␀ ',
     ),
     circled_lower = dict(
-        TRACE    = 'ⓣ ',
-        DEBUG    = 'ⓓ ',
-        INFO     = 'ⓘ ',
-        NOTE     = 'ⓝ ',
-        WARNING  = 'ⓦ ',
-        ERROR    = 'ⓔ ',
-        EXCEPT   = 'ⓧ ',
-        CRITICAL = 'ⓕ ',
-        FATAL    = 'ⓕ ',
-        NOTSET   = 'ⓝ ',
+        TRACE    = 'ⓣ',
+        DEBUG    = 'ⓓ',
+        INFO     = 'ⓘ',
+        NOTE     = 'ⓝ',
+        WARNING  = 'ⓦ',
+        ERROR    = 'ⓔ',
+        EXCEPT   = 'ⓧ',
+        CRITICAL = 'ⓕ',
+        FATAL    = 'ⓕ',
+        NOTSET   = 'ⓝ',
     ),
     ascii = dict(
-        TRACE    = 'T ',
-        DEBUG    = 'D ',
-        INFO     = 'I ',
-        NOTE     = 'N ',
-        WARNING  = 'W ',
-        ERROR    = 'E ',
-        EXCEPT   = 'X ',
-        CRITICAL = 'F ',
-        FATAL    = 'F ',
-        NOTSET   = 'N ',
+        TRACE    = 'T',
+        DEBUG    = 'D',
+        INFO     = 'I',
+        NOTE     = 'N',
+        WARNING  = 'W',
+        ERROR    = 'E',
+        EXCEPT   = 'X',
+        CRITICAL = 'F',
+        FATAL    = 'F',
+        NOTSET   = 'N',
     ),
     ascii_symbol = dict(
-        TRACE    = '- ',
-        DEBUG    = '~ ',
-        INFO     = '= ',
-        NOTE     = '+ ',
-        WARNING  = '! ',
-        ERROR    = '! ',
-        EXCEPT   = '! ',
-        CRITICAL = '!!',
-        FATAL    = '!!',
-        NOTSET   = '_ ',
+        TRACE    = '-',
+        DEBUG    = '~',
+        INFO     = '=',
+        NOTE     = '+',
+        WARNING  = '!',
+        ERROR    = '*',
+        EXCEPT   = '*',
+        CRITICAL = '!',
+        FATAL    = '!',
+        NOTSET   = '_',
     ),
     circled = dict(
-        TRACE    = '🅣 ',
-        DEBUG    = '🅓 ',
-        INFO     = '🅘 ',
-        NOTE     = '🅝 ',
-        WARNING  = '🅦 ',
-        ERROR    = '🅔 ',
-        EXCEPT   = '🅧 ',
-        CRITICAL = '🅕 ',
-        FATAL    = '🅕 ',
-        NOTSET   = '🅝 ',
+        TRACE    = '🅣',
+        DEBUG    = '🅓',
+        INFO     = '🅘',
+        NOTE     = '🅝',
+        WARNING  = '🅦',
+        ERROR    = '🅔',
+        EXCEPT   = '🅧',
+        CRITICAL = '🅕',
+        FATAL    = '🅕',
+        NOTSET   = '🅝',
     ),
     rounded = dict(
-        TRACE    = '🆃 ',
-        DEBUG    = '🅳 ',
-        INFO     = '🅸 ',
-        NOTE     = '🅽 ',
-        WARNING  = '🆆 ',
-        ERROR    = '🅴 ',
-        EXCEPT   = '🆇 ',
-        CRITICAL = '🅵 ',
-        FATAL    = '🅵 ',
-        NOTSET   = '🅽 ',
+        TRACE    = '🆃',
+        DEBUG    = '🅳',
+        INFO     = '🅸',
+        NOTE     = '🅽',
+        WARNING  = '🆆',
+        ERROR    = '🅴',
+        EXCEPT   = '🆇',
+        CRITICAL = '🅵',
+        FATAL    = '🅵',
+        NOTSET   = '🅽',
     ),
 )
 
 
 def render_styles(out_file, fg=None, fx=None):
-    ''' function_doc '''
-
+    ''' Styles need to react to changes in output stream. Therefore they are
+        rendered here with or without escape sequences as needed.
+    '''
     if not (fg and fx):
         fg, fx, _CHOSEN_PALETTE, _is_a_tty  = _find_palettes(out_file)
 
@@ -149,8 +149,9 @@ def render_styles(out_file, fg=None, fx=None):
 
 
 def render_themes(out_file, fg=None, fx=None):
-    ''' Due to console objects, themes need to react to changes in output
-        stream. '''
+    ''' Themes need to react to changes in output stream. Therefore they are
+        rendered here with or without escape sequences as needed.
+    '''
     if not (fg and fx):
         fg, fx, _CHOSEN_PALETTE, _is_a_tty  = _find_palettes(out_file)
 

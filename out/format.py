@@ -1,6 +1,6 @@
 '''
     out - Simple logging with a few fun features.
-    © 2018, Mike Miller - Released under the LGPL, version 3+.
+    © 2018-19, Mike Miller - Released under the LGPL, version 3+.
 
     Message template variables:
 
@@ -84,13 +84,11 @@ class ColorFormatter(logging.Formatter):
         self._code_indent = code_indent
         self._highlight = self._lexer = None
         if hl:
-            print('*** hl:', hl)
             if lexer:
                 self._highlight = highlight.highlight
                 self.set_lexer(lexer)
-            self._hl_formatter = hl_formatter or highlight.get_term_formatter(palette)
+            self._hl_fmtr = hl_formatter or highlight.get_term_formatter(palette)
         else:
-            print('*** hl:', hl)
             self.format = self.format_plain  # disable highlighting
         super().__init__(fmt=fmt, datefmt=datefmt, style=template_style)
 
@@ -131,7 +129,7 @@ class ColorFormatter(logging.Formatter):
                 if front.endswith('\n'):                    # indent data?
                     back = pformat(record.args)
                     back = left_indent(back, self._code_indent)
-                back = self._highlight(back, self._lexer, self._hl_formatter)
+                back = self._highlight(back, self._lexer, self._hl_fmtr)
                 message = f'{front}{back}'
 
         # style the level, icon

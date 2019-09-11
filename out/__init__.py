@@ -63,13 +63,10 @@ class Logger(logging.Logger):
                 self.handlers[0].formatter._style._fmt = value
 
             elif kwarg == 'stream':
-                print('*** stream:', value)
-                global fg, fx, _CHOSEN_PALETTE
+                #~ print('*** stream:', value)
                 self.handlers[0].stream = value
-                fg, fx, _CHOSEN_PALETTE, is_a_tty = _find_palettes(value)
-                print('*** _add_handler start, palette: %r' % _CHOSEN_PALETTE)
-                _add_handler(value, is_a_tty)#, theme=None)
-                print('*** _add_handler done')
+                _, _, palette, is_a_tty = _find_palettes(value)
+                _add_handler(value, is_a_tty, palette)#, theme=None)
 
             elif kwarg == 'theme':
                 if type(value) is str:
@@ -111,7 +108,7 @@ class Logger(logging.Logger):
         level = self.level
         debug = self.debug
         debug('out logging config, version: %r', __version__)
-        debug('/ name: {}, id: {}', self.name, hex(id(self)))
+        debug('  .name: {}, id: {}', self.name, hex(id(self)))
         debug('  .level: %s (%s)', level_map_int[level], level)
         debug('  .default_level: %s (%s)',
                    level_map_int[self.default_level], self.default_level)
@@ -123,10 +120,12 @@ class Logger(logging.Logger):
             debug('      .datefmt: %r', fmtr.datefmt)
             debug('      .msgfmt: %r', fmtr._fmt)
             debug('      fmt_style: %s', fmtr._style)
+            debug('      theme.styles: %r', fmtr._theme_style)
+            debug('      theme.icons: %r', fmtr._theme_icons)
             try:
-                debug('      theme styles: %r', fmtr._theme_style)
-                debug('      theme icons: %r', fmtr._theme_icons)
-                debug('      lexer: %r\n', fmtr._lexer)
+                debug('      highlighting: %r, %r',
+                    fmtr._lexer.__class__.__name__,
+                    fmtr._hl_fmtr.__class__.__name__)
             except AttributeError:
                 pass
 
@@ -195,7 +194,7 @@ out.set_level('note')
 
 
 # handler/formatter
-def _add_handler(out_file, is_a_tty, theme='auto'):
+def _add_handler(out_file, is_a_tty, palette, theme='auto'):
     ''' Repeatable handler config. '''
     out.handlers = []  # clear any old
     _handler = logging.StreamHandler(stream=out_file)
@@ -208,13 +207,13 @@ def _add_handler(out_file, is_a_tty, theme='auto'):
         theme = render_themes(out_file)[_theme_name]
 
     #~ print('ttt:', theme)
-    _formatter = _ColorFormatter(hl=bool(_CHOSEN_PALETTE),
-                                 palette=_CHOSEN_PALETTE, **theme)
+    _formatter = _ColorFormatter(hl=bool(palette),
+                                 palette=palette, **theme)
 
     _handler.setFormatter(_formatter)
     out.addHandler(_handler)
 
-_add_handler(_out_file, _is_a_tty)
+_add_handler(_out_file, _is_a_tty, _CHOSEN_PALETTE)
 
 # save original module for later, in case it's needed.
 out._module = sys.modules[__name__]

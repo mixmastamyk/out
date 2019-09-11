@@ -1,3 +1,7 @@
+'''
+    out - Simple logging with a few fun features.
+    © 2018-19, Mike Miller - Released under the LGPL, version 3+.
+'''
 import sys
 import out
 

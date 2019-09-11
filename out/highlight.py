@@ -1,29 +1,8 @@
 '''
     out - Simple logging with a few fun features.
-    © 2018, Mike Miller - Released under the LGPL, version 3+.
+    © 2018-19, Mike Miller - Released under the LGPL, version 3+.
 
     Highlighting with Pygments!
-
-    pygments_color_name_mapping = {  # old names --> new
-        'darkred'    : 'red',
-        'darkgreen'  : 'green',
-        'brown'      : 'yellow',
-        'darkblue'   : 'blue',
-        'purple'     : 'magenta',
-        'teal'       : 'cyan',
-        'lightgray'  : 'gray',
-        'darkgray'   : 'brightblack',
-        'red'        : 'brightred',
-        'green'      : 'brightgreen',
-        'yellow'     : 'brightyellow',
-        'blue'       : 'brightblue',
-        'fuchsia'    : 'brightmagenta',
-        'turquoise'  : 'brightcyan',
-        'darkyellow' : 'yellow',
-        'darkteal'   : 'brightcyan',
-        'fuscia'     : 'brightmagenta',
-    }
-
 '''
 try:
     from pygments import highlight
@@ -35,13 +14,13 @@ except ImportError:
     highlight = get_lexer_by_name = None
 
 
-def get_term_formatter(_CHOSEN_PALETTE):
+def get_term_formatter(chosen_palette):
     ''' Build formatter according to environment. '''
+
     term_formatter = None
+    if chosen_palette and highlight:
 
-    if _CHOSEN_PALETTE and highlight:
-
-        if _CHOSEN_PALETTE in ('extended', 'truecolor'):
+        if chosen_palette in ('extended', 'truecolor'):
 
             from pygments.formatters import Terminal256Formatter
             from pygments.style import Style
@@ -65,12 +44,12 @@ def get_term_formatter(_CHOSEN_PALETTE):
                 }
             term_formatter = Terminal256Formatter(style=OutStyle)
 
-        elif _CHOSEN_PALETTE == 'basic':
+        elif chosen_palette == 'basic':
 
             from pygments.formatters import TerminalFormatter
 
             _default = ('', '')
-            _TERMINAL_COLORS = {
+            color_scheme = {
                 Comment.Preproc:    _default,
                 Name:               _default,
                 Token:              _default,
@@ -101,7 +80,7 @@ def get_term_formatter(_CHOSEN_PALETTE):
 
             term_formatter = TerminalFormatter(
                 bg='dark',
-                colorscheme=_TERMINAL_COLORS,
+                colorscheme=color_scheme,
             )
 
     return term_formatter

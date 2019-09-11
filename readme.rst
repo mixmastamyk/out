@@ -4,7 +4,7 @@ Out
 
 Fun take on logging for non-huge projects—out gets "outta" the way!
 
-(Why's are covered in the background_ section at the bottom.)
+(Why's are covered in the background_anchor_ section at the bottom.)
 
 
 Install
@@ -449,7 +449,7 @@ Import ``out`` in debug mode first and you can see any logging other modules do
 as the start up.
 
 
-.. _background:
+.. _background_anchor:
 
 Background
 --------------------------

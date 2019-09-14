@@ -7,7 +7,7 @@ import sys
 import logging
 import traceback
 
-from .detection import _find_palettes
+from .detection import _find_palettes, is_fbterm
 
 _out_file = sys.stderr
 fg, fx, _CHOSEN_PALETTE, _is_a_tty  = _find_palettes(_out_file)
@@ -200,15 +200,16 @@ def _add_handler(out_file, is_a_tty, palette, theme='auto'):
     _handler = logging.StreamHandler(stream=out_file)
     if theme == 'auto':
         _theme_name = 'interactive' if is_a_tty else 'production'
-        if os.environ.get('TERM') == 'linux':
+        if os.environ.get('TERM') in ('linux', 'fbterm'):
             _theme_name = 'linux_' + _theme_name
         if os.name == 'nt':
             _theme_name = 'windows_' + _theme_name
         theme = render_themes(out_file)[_theme_name]
+        # highlighting
+        hl = bool(palette)
+        if is_fbterm:  hl = False  # doesn't handle
 
-    #~ print('ttt:', theme)
-    _formatter = _ColorFormatter(hl=bool(palette),
-                                 palette=palette, **theme)
+    _formatter = _ColorFormatter(hl=hl, palette=palette, **theme)
 
     _handler.setFormatter(_formatter)
     out.addHandler(_handler)

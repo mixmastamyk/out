@@ -14,7 +14,7 @@
         >>> unicodedata.east_asian_width('💀')
         'W'
 '''
-from .detection import _find_palettes
+from .detection import _find_palettes, is_fbterm
 
 icons = dict(
 
@@ -95,7 +95,9 @@ icons = dict(
 
 def render_styles(out_file, fg=None, fx=None):
     ''' Styles need to react to changes in output stream. Therefore they are
-        rendered here with or without escape sequences as needed.
+        rendered here with (or without) escape sequences as needed.
+
+        Most of the time, this will only be done once.
     '''
     if not (fg and fx):
         fg, fx, _CHOSEN_PALETTE, _is_a_tty  = _find_palettes(out_file)
@@ -114,6 +116,18 @@ def render_styles(out_file, fg=None, fx=None):
             EXCEPT   = str(fg.lightred),
             CRITICAL = str(_fatal_clr),
             FATAL    = str(_fatal_clr),
+            NOTSET   = '',
+        ),
+        reverse = dict(
+            TRACE    = str(fg.purple + fx.reverse),
+            DEBUG    = str(fg.blue + fx.reverse),
+            INFO     = str(fg.green + fx.reverse),
+            NOTE     = str(fg.lightcyan + fx.reverse),
+            WARNING  = str(fg.lightyellow + fx.reverse),
+            ERROR    = str(fg.red + fx.reverse),
+            EXCEPT   = str(fg.lightred + fx.reverse),
+            CRITICAL = str(_fatal_clr + fx.reverse),
+            FATAL    = str(_fatal_clr + fx.reverse),
             NOTSET   = '',
         ),
         bold = dict(
@@ -157,15 +171,27 @@ def render_themes(out_file, fg=None, fx=None):
 
     styles = render_styles(out_file, fg=fg, fx=fx)
 
+    # uggh - fbterm escape sequences conflict with brace formatting :-/
+    dark_grey = str(fg.i242)
+    drk_grey4 = str(fg.lightblack)  # 16 color
+    medm_grey = str(fg.i245)
+    int_green = str(fg.green)
+    end = str(fx.end)
+    if is_fbterm:
+        dark_grey += '}'
+        drk_grey4 = dark_grey  # too dark
+        medm_grey += '}'
+        int_green += '}'
+
     # these are full themes, colors, icons, msg and date formats
     themes = dict(
         interactive = dict(
             style = styles['norm'],
             icons = icons['rounded'],
             fmt='  {on}{icon:<2}{off} ' +
-                fg.i242 + '{name}/' +  # dark grey
-                fg.i245 + '{funcName}:' +  # medium grey
-                fg.green + '{lineno:<3}' + fx.end +
+                dark_grey + '{name}/' +
+                medm_grey + '{funcName}:' +
+                int_green + '{lineno:<3}' + end +
                 ' {message}',
             datefmt='%H:%M:%S',
         ),
@@ -197,12 +223,11 @@ def render_themes(out_file, fg=None, fx=None):
         ),
 
         linux_interactive = dict(
-            style = styles['norm'],
+            style = styles['reverse'],
             icons = icons['ascii'],
-            fmt='  {on}{levelname:<7}{off} ' +
-                # dark grey, end needed for linux con:
-                fg.lightblack('{name}/{funcName}:') +
-                fg.green('{lineno:<3}') +
+            fmt='  {on}{icon}{off} ' +
+                drk_grey4 + '{name}/{funcName}:' +
+                int_green + '{lineno:<3}' + end +
                 ' {message}',
         ),
         linux_production = dict(

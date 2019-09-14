@@ -423,30 +423,34 @@ also known as the "root" logger.
 Troubleshooting
 -----------------
 
-If you'd like to know what ``out`` is doing,
-try running the ``.log_config()`` method to log what's currently up:
+- If you'd like to know what ``out`` is doing,
+  try running the ``.log_config()`` method to log what's currently up:
 
-.. code-block:: python
+  .. code-block:: python
 
-    >>> out.log_config()
+      >>> out.log_config()
 
-.. code-block:: shell
+  .. code-block:: shell
 
-    🅳   out logging config, version: '0.70a1'
-    🅳     .name: main, id: 0x7f88e9ec7198
-    🅳     .level: debug (10)
-    🅳     .default_level: info (20)
-    🅳     + Handler: 0 <StreamHandler <stdout> (NOTSET)>
-    🅳       + Formatter: <out.format.ColorFormatter object at 0x7f88e9ce1b70>
-    🅳         .datefmt: '%H:%M:%S'
-    🅳         .msgfmt: '  {on}{icon:<2}{off} \x1b[38;5;242m{name}/\x1b[38;5;245m{funcName}:\x1b[32m{lineno:<3}\x1b[0m {message}'
-    🅳         fmt_style: <logging.StrFormatStyle object at 0x7f88e9ca5080>
-    🅳         theme.styles: {'TRACE': '\x1b[35m', 'DEBUG': '\x1b[34m', 'INFO': '\x1b[32m', 'NOTE': '\x1b[96m', 'WARNING': '\x1b[93m', 'ERROR': '\x1b[31m', 'EXCEPT': '\x1b[91m', 'CRITICAL': '\x1b[97m', 'FATAL': '\x1b[97m', 'NOTSET': ''}
-    🅳         theme.icons: {'TRACE': '🆃', 'DEBUG': '🅳', 'INFO': '🅸', 'NOTE': '🅽', 'WARNING': '🆆', 'ERROR': '🅴', 'EXCEPT': '🆇', 'CRITICAL': '🅵', 'FATAL': '🅵', 'NOTSET': '🅽'}
-    🅳         highlighting: 'Python3Lexer', 'Terminal256Formatter'
+      🅳   out logging config, version: '0.70a1'
+      🅳     .name: main, id: 0x7f88e9ec7198
+      🅳     .level: debug (10)
+      🅳     .default_level: info (20)
+      🅳     + Handler: 0 <StreamHandler <stdout> (NOTSET)>
+      🅳       + Formatter: <out.format.ColorFormatter object at 0x7f88e9ce1b70>
+      🅳         .datefmt: '%H:%M:%S'
+      🅳         .msgfmt: '  {on}{icon:<2}{off} \x1b[38;5;242m{name}/\x1b[38;5;245m{funcName}:\x1b[32m{lineno:<3}\x1b[0m {message}'
+      🅳         fmt_style: <logging.StrFormatStyle object at 0x7f88e9ca5080>
+      🅳         theme.styles: {'TRACE': '\x1b[35m', 'DEBUG': '\x1b[34m', 'INFO': '\x1b[32m', 'NOTE': '\x1b[96m', 'WARNING': '\x1b[93m', 'ERROR': '\x1b[31m', 'EXCEPT': '\x1b[91m', 'CRITICAL': '\x1b[97m', 'FATAL': '\x1b[97m', 'NOTSET': ''}
+      🅳         theme.icons: {'TRACE': '🆃', 'DEBUG': '🅳', 'INFO': '🅸', 'NOTE': '🅽', 'WARNING': '🆆', 'ERROR': '🅴', 'EXCEPT': '🆇', 'CRITICAL': '🅵', 'FATAL': '🅵', 'NOTSET': '🅽'}
+      🅳         highlighting: 'Python3Lexer', 'Terminal256Formatter'
 
-Import ``out`` in debug mode first and you can see any logging other modules do
-as the start up.
+  Import ``out`` in debug mode first and you can see any logging other modules do
+  as the start up.
+
+- If you're using fbterm, make sure the ``TERM`` environment variable is set
+  to ``fbterm``.
+  This makes several adjustments to help it work better under that terminal.
 
 
 .. _background_anchor:

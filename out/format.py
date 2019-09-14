@@ -40,9 +40,13 @@ from pprint import pformat
 from . import themes
 from . import fx
 from . import highlight
+from .detection import is_fbterm
 
 DATA_SEARCH_LIMIT = 80
 _end = str(fx.end)
+if is_fbterm:  # fbterm esc seqs conflict with brace formatting :-/
+    _end = _end.replace('}', '}}')
+
 json_data_search = re.compile(r"(\{|\[|')").search
 xml_data_search = re.compile(r"(<|')").search
 pyt_data_search = re.compile(r"(\(|:|;)").search
@@ -88,8 +92,7 @@ class ColorFormatter(logging.Formatter):
                 self._highlight = highlight.highlight
                 self.set_lexer(lexer)
             self._hl_fmtr = hl_formatter or highlight.get_term_formatter(palette)
-        else:
-            self.format = self.format_plain  # disable highlighting
+
         super().__init__(fmt=fmt, datefmt=datefmt, style=template_style)
 
     def set_lexer(self, name):
@@ -137,45 +140,6 @@ class ColorFormatter(logging.Formatter):
         record.on = self._theme_style.get(levelname, '')
         record.icon = self._theme_icons.get(levelname, '')
         record.off = _end
-        s = self.formatMessage(record)
-
-        # this needs to be here, Formatter class not very granular.
-        if record.exc_info:
-            # Cache the traceback text to avoid converting it multiple times
-            # (it's constant anyway)
-            if not record.exc_text:
-                record.exc_text = self.formatException(record.exc_info)
-        if record.exc_text:
-            if s[-1:] != "\n":
-                s = s + "\n"
-            s = s + record.exc_text
-        if record.stack_info:
-            if s[-1:] != "\n":
-                s = s + "\n"
-            s = s + self.formatStack(record.stack_info)
-        return s
-
-    def format_plain(self, record):
-        ''' Log formatting. '''
-        levelname = record.levelname    # len7 limit
-        if levelname == 'CRITICAL':
-            levelname = record.levelname = 'FATAL'
-        if self.usesTime():
-            record.asctime = self.formatTime(record, self.datefmt)
-        if record.funcName == '<module>':
-            record.funcName = ''
-
-        # render the message part with arguments
-        try:  # Allow {} style - need a faster way to determine this:
-            message = record.getMessage()
-        except TypeError:
-            message = record.msg.format(*record.args)
-
-        # style the level, icon
-        record.message = message
-        record.on = ''
-        record.icon = self._theme_icons.get(levelname, '')
-        record.off = ''
         s = self.formatMessage(record)
 
         # this needs to be here, Formatter class not very granular.

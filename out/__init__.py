@@ -9,6 +9,8 @@ import traceback
 
 from .detection import _find_palettes, is_fbterm
 
+
+# detect environment before loading formatters and themes
 _out_file = sys.stderr
 fg, fx, _CHOSEN_PALETTE, _is_a_tty  = _find_palettes(_out_file)
 
@@ -16,8 +18,9 @@ fg, fx, _CHOSEN_PALETTE, _is_a_tty  = _find_palettes(_out_file)
 # now we're ready to import these:
 from .format import (ColorFormatter as _ColorFormatter,
                      JSONFormatter as _JSONFormatter)
-from .themes import render_themes, render_styles, icons as _icons
-
+from .themes import (render_themes as _render_themes,
+                     render_styles as _render_styles,
+                     icons as _icons)
 
 __version__ = '0.70a1'
 
@@ -63,19 +66,21 @@ class Logger(logging.Logger):
                 self.handlers[0].formatter._style._fmt = value
 
             elif kwarg == 'stream':
-                #~ print('*** stream:', value)
                 self.handlers[0].stream = value
                 _, _, palette, is_a_tty = _find_palettes(value)
-                _add_handler(value, is_a_tty, palette)#, theme=None)
+                # probably shouldn't auto configure theme, but it does,
+                # skipping currently
+                _add_handler(value, is_a_tty, palette, theme=None)
 
             elif kwarg == 'theme':
                 if type(value) is str:
                     # this section should be reconciled with _add_handler
-                    theme = render_themes(self.handlers[0].stream)[value]
+                    theme = _render_themes(self.handlers[0].stream)[value]
                     if value == 'plain':
                         fmtr =  logging.Formatter(style='{', **theme)
                     elif value == 'json':
-                        fmtr =  _JSONFormatter(**theme)
+                        pal = self.handlers[0]._palette
+                        fmtr =  _JSONFormatter(palette=pal, **theme)
                     else:
                         fmtr =  _ColorFormatter(**theme)
                 elif type(value) is dict:
@@ -92,7 +97,7 @@ class Logger(logging.Logger):
 
             elif kwarg == 'style':
                 if type(value) is str:
-                    value = render_styles(self.handlers[0].stream)[value]
+                    value = _render_styles(self.handlers[0].stream)[value]
                 self.handlers[0].formatter._theme_style = value
 
             elif kwarg == 'lexer':
@@ -174,11 +179,40 @@ def add_logging_level(name, value, method_name=None):
     setattr(logging, method_name, logToRoot)
 
 
+def _add_handler(out_file, is_a_tty, palette, theme='auto'):
+    ''' Repeatable handler config. '''
+    hl = bool(palette)  # highlighting
+    _handler = logging.StreamHandler(stream=out_file)
+
+    if theme == 'auto':
+        _theme_name = 'interactive' if is_a_tty else 'production'
+        if os.environ.get('TERM') in ('linux', 'fbterm'):
+            _theme_name = 'linux_' + _theme_name
+        if os.name == 'nt':
+            _theme_name = 'windows_' + _theme_name
+        theme = _render_themes(out_file)[_theme_name]
+        if is_fbterm:  hl = False  # doesn't work  well
+    elif theme is None:
+        try:
+            fmtr = out.handlers[0].formatter
+            theme = dict(
+                icons=fmtr._theme_icons, style=fmtr._theme_style,
+                fmt=fmtr._style._fmt, datefmt=fmtr.datefmt,
+            )
+        except AttributeError:
+            theme = {}
+
+    out.handlers = []  # clear any old
+    _handler._palette = palette
+    _formatter = _ColorFormatter(hl=hl, palette=palette, **theme)
+    _handler.setFormatter(_formatter)
+    out.addHandler(_handler)
+
+
 # re-configure root logger
 out = logging.getLogger()   # root
 out.name = 'main'
 out.__class__ = Logger      # one way to add call()
-
 
 # odd level numbers chosen to avoid commonly configured variations
 add_logging_level('TRACE', 7)
@@ -192,29 +226,8 @@ level_map_int = {
 out.warn = out.warning  # fix warn
 out.set_level('note')
 
-
-# handler/formatter
-def _add_handler(out_file, is_a_tty, palette, theme='auto'):
-    ''' Repeatable handler config. '''
-    out.handlers = []  # clear any old
-    _handler = logging.StreamHandler(stream=out_file)
-    if theme == 'auto':
-        _theme_name = 'interactive' if is_a_tty else 'production'
-        if os.environ.get('TERM') in ('linux', 'fbterm'):
-            _theme_name = 'linux_' + _theme_name
-        if os.name == 'nt':
-            _theme_name = 'windows_' + _theme_name
-        theme = render_themes(out_file)[_theme_name]
-        # highlighting
-        hl = bool(palette)
-        if is_fbterm:  hl = False  # doesn't handle
-
-    _formatter = _ColorFormatter(hl=hl, palette=palette, **theme)
-
-    _handler.setFormatter(_formatter)
-    out.addHandler(_handler)
-
 _add_handler(_out_file, _is_a_tty, _CHOSEN_PALETTE)
+
 
 # save original module for later, in case it's needed.
 out._module = sys.modules[__name__]

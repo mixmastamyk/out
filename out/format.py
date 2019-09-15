@@ -170,13 +170,17 @@ class JSONFormatter(logging.Formatter):
 
         (Currently field order requires Python 3.6, but could be backported.)
     '''
-    def __init__(self, datefmt=None, fmt=None, palette=None, hl=True, hl_formatter=None):
+    def __init__(self, datefmt=None, fmt=None, palette=None, hl=True,
+                 hl_formatter=None):
         self._fields = fmt.split(',')
         from json import dumps
         self.dumps = dumps
+        self._lexer = highlight.get_lexer_by_name('JSON')
         if hl:
             self._highlight = highlight.highlight
-            self._hl_formatter = hl_formatter or highlight.get_term_formatter(palette)
+            self._hl_formatter = (
+                hl_formatter or highlight.get_term_formatter(palette)
+            )
         super().__init__(fmt=fmt, datefmt=datefmt)
 
     def format(self, record):
@@ -199,9 +203,7 @@ class JSONFormatter(logging.Formatter):
             data['asctime'] += '.{:03.0f}'.format(data.pop('msecs'))
         s = self.dumps(data)
         if self._highlight:
-            s = self._highlight(s, highlight.get_lexer_by_name('JSON'),
-                    self._hl_formatter,
-                ).rstrip()
+            s = self._highlight(s, self._lexer, self._hl_formatter).rstrip()
 
         # this needs to be here, Formatter class isn't very extensible.
         if record.exc_info:

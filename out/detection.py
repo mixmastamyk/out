@@ -5,7 +5,7 @@
 import env
 
 from console.detection import is_a_tty, choose_palette, get_available_palettes
-from console.style import ForegroundPalette, EffectsPalette
+from console.style import ForegroundPalette, BackgroundPalette, EffectsPalette
 
 
 def _find_palettes(stream):
@@ -13,7 +13,8 @@ def _find_palettes(stream):
     chosen = choose_palette(stream=stream)
     palettes = get_available_palettes(chosen)
     fg = ForegroundPalette(palettes=palettes)
+    bg = BackgroundPalette(palettes=palettes)
     fx = EffectsPalette(palettes=palettes)
-    return fg, fx, chosen, is_a_tty(stream)
+    return fg, bg, fx, chosen, is_a_tty(stream)
 
 is_fbterm = (env.TERM == 'fbterm')

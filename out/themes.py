@@ -93,17 +93,18 @@ icons = dict(
 )
 
 
-def render_styles(out_file, fg=None, fx=None):
+def render_styles(out_file, fg=None, bg=None, fx=None):
     ''' Styles need to react to changes in output stream. Therefore they are
         rendered here with (or without) escape sequences as needed.
 
         Most of the time, this will only be done once.
     '''
-    if not (fg and fx):
-        fg, fx, _CHOSEN_PALETTE, _is_a_tty  = _find_palettes(out_file)
+    if not (fg and bg and fx):
+        fg, bg, fx, _CHOSEN_PALETTE, _is_a_tty  = _find_palettes(out_file)
 
     # render styles first
     _fatal_clr = fg.lightwhite
+    _fatal_clr_bld = fx.bold + fg.white
 
     styles = dict(
         norm = dict(
@@ -133,13 +134,25 @@ def render_styles(out_file, fg=None, fx=None):
         bold = dict(
             TRACE    = str(fg.purple),
             DEBUG    = str(fg.blue),
-            INFO     = str(fg.lightgreen),
+            INFO     = str(fg.green),
             NOTE     = str(fg.cyan + fx.bold),
             WARNING  = str(fg.yellow + fx.bold),
             ERROR    = str(fg.red + fx.bold),
-            EXCEPT   = str(fg.lightred + fx.bold),
-            CRITICAL = str(_fatal_clr + fx.bold),
-            FATAL    = str(_fatal_clr + fx.bold),
+            EXCEPT   = str(fg.red + fx.bold),
+            CRITICAL = str(_fatal_clr_bld),
+            FATAL    = str(_fatal_clr_bld),
+            NOTSET   = '',
+        ),
+        reverse_fbterm = dict(  # bright limits, use bg with first of 256
+            TRACE    = str(fg.purple + fx.reverse),
+            DEBUG    = str(fg.blue + fx.reverse),
+            INFO     = str(fg.green + fx.reverse),
+            NOTE     = fg.black + bg.i14,  # already strings, don't mix
+            WARNING  = fg.black + bg.i11,
+            ERROR    = fg.black + bg.i9,
+            EXCEPT   = fg.black + bg.i9,
+            CRITICAL = fg.black + bg.i15,
+            FATAL    = fg.black + bg.i15,
             NOTSET   = '',
         ),
         mono = dict(
@@ -162,12 +175,12 @@ def render_styles(out_file, fg=None, fx=None):
     return styles
 
 
-def render_themes(out_file, fg=None, fx=None):
+def render_themes(out_file, fg=None, bg=None, fx=None):
     ''' Themes need to react to changes in output stream. Therefore they are
         rendered here with or without escape sequences as needed.
     '''
-    if not (fg and fx):
-        fg, fx, _CHOSEN_PALETTE, _is_a_tty  = _find_palettes(out_file)
+    if not (fg and bg and fx):
+        fg, _, fx, _CHOSEN_PALETTE, _is_a_tty  = _find_palettes(out_file)
 
     styles = render_styles(out_file, fg=fg, fx=fx)
 
@@ -181,7 +194,6 @@ def render_themes(out_file, fg=None, fx=None):
         dark_grey += '}'
         drk_grey4 = dark_grey  # too dark
         medm_grey += '}'
-        int_green += '}'
 
     # these are full themes, colors, icons, msg and date formats
     themes = dict(
@@ -240,4 +252,6 @@ def render_themes(out_file, fg=None, fx=None):
     )
     themes['windows_interactive'] = themes['linux_interactive']
     themes['windows_production'] = themes['production']
+    if is_fbterm:
+        themes['linux_interactive']['style'] = styles['reverse_fbterm']
     return themes

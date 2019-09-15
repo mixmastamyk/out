@@ -12,7 +12,7 @@ from .detection import _find_palettes, is_fbterm
 
 # detect environment before loading formatters and themes
 _out_file = sys.stderr
-fg, fx, _CHOSEN_PALETTE, _is_a_tty  = _find_palettes(_out_file)
+fg, _, fx, _CHOSEN_PALETTE, _is_a_tty  = _find_palettes(_out_file)
 
 
 # now we're ready to import these:
@@ -22,7 +22,7 @@ from .themes import (render_themes as _render_themes,
                      render_styles as _render_styles,
                      icons as _icons)
 
-__version__ = '0.70a2'
+__version__ = '0.70a3'
 
 # Allow string as well as constant access.  Levels will be added below:
 level_map = {
@@ -67,7 +67,7 @@ class Logger(logging.Logger):
 
             elif kwarg == 'stream':
                 self.handlers[0].stream = value
-                _, _, palette, is_a_tty = _find_palettes(value)
+                _, _, _, palette, is_a_tty = _find_palettes(value)
                 # probably shouldn't auto configure theme, but it does,
                 # skipping currently
                 _add_handler(value, is_a_tty, palette, theme=None)
@@ -77,10 +77,12 @@ class Logger(logging.Logger):
                     # this section should be reconciled with _add_handler
                     theme = _render_themes(self.handlers[0].stream)[value]
                     if value == 'plain':
-                        fmtr =  logging.Formatter(style='{', **theme)
+                        fmtr = logging.Formatter(style='{', **theme)
                     elif value == 'json':
                         pal = self.handlers[0]._palette
-                        fmtr =  _JSONFormatter(palette=pal, **theme)
+                        if is_fbterm:   hl = False          # doesn't work well
+                        else:           hl = bool(pal)      # highlighting
+                        fmtr = _JSONFormatter(palette=pal, hl=hl, **theme)
                     else:
                         fmtr =  _ColorFormatter(**theme)
                 elif type(value) is dict:
@@ -181,7 +183,8 @@ def add_logging_level(name, value, method_name=None):
 
 def _add_handler(out_file, is_a_tty, palette, theme='auto'):
     ''' Repeatable handler config. '''
-    hl = bool(palette)  # highlighting
+    if is_fbterm:   hl = False          # doesn't work well
+    else:           hl = bool(palette)  # highlighting
     _handler = logging.StreamHandler(stream=out_file)
 
     if theme == 'auto':
@@ -191,7 +194,6 @@ def _add_handler(out_file, is_a_tty, palette, theme='auto'):
         if os.name == 'nt':
             _theme_name = 'windows_' + _theme_name
         theme = _render_themes(out_file)[_theme_name]
-        if is_fbterm:  hl = False  # doesn't work  well
     elif theme is None:
         try:
             fmtr = out.handlers[0].formatter

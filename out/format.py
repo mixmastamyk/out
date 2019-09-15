@@ -176,6 +176,7 @@ class JSONFormatter(logging.Formatter):
         from json import dumps
         self.dumps = dumps
         self._lexer = highlight.get_lexer_by_name('JSON')
+        self._highlight = None
         if hl:
             self._highlight = highlight.highlight
             self._hl_formatter = (

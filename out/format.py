@@ -175,13 +175,14 @@ class JSONFormatter(logging.Formatter):
         self._fields = fmt.split(',')
         from json import dumps
         self.dumps = dumps
-        self._lexer = highlight.get_lexer_by_name('JSON')
         self._highlight = None
         if hl:
             self._highlight = highlight.highlight
-            self._hl_formatter = (
-                hl_formatter or highlight.get_term_formatter(palette)
-            )
+            if self._highlight:
+                self._lexer = highlight.get_lexer_by_name('JSON')
+                self._hl_formatter = (
+                    hl_formatter or highlight.get_term_formatter(palette)
+                )
         super().__init__(fmt=fmt, datefmt=datefmt)
 
     def format(self, record):

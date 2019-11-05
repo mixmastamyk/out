@@ -24,7 +24,6 @@ def test_levels(full=True):
             out.error('error message - Pow!')
             #~ out.exception('exception message - Kerblooey!')
             out.exc('exc message - Kerblooey!')
-            #~ out.exc()
 
 
 out.warn('begin...')

@@ -89,7 +89,8 @@ Useful defaults, and easy to configure!
             theme=name|dict,        # see below
             icons=name|dict,        #   about themes
             style=name|dict,
-            lexer='python3',        # optional highlighting
+            highlight=False,        # disable highlighting
+            lexer='python3',        # choose lexer
         )
 
 We'll go into more detail below.

@@ -22,7 +22,7 @@ from .themes import (render_themes as _render_themes,
                      render_styles as _render_styles,
                      icons as _icons)
 
-__version__ = '0.71'
+__version__ = '0.72'
 
 # Allow string as well as constant access.  Levels will be added below:
 level_map = {
@@ -54,7 +54,7 @@ class Logger(logging.Logger):
             value = kwargs[kwarg]
 
             if kwarg == 'level':
-                self.set_level(value)
+                self.set_level(value.lower())
 
             elif kwarg == 'default_level':
                 self.default_level = level_map.get(value, value)
@@ -91,6 +91,11 @@ class Logger(logging.Logger):
                     else:
                         fmtr =  logging.Formatter(style='{', **theme)
                 self.handlers[0].setFormatter(fmtr)
+
+            elif kwarg == 'highlight':
+                value = bool(value)
+                if value is False:  # True value is a highlighter
+                    self.handlers[0].formatter._highlight = value
 
             elif kwarg == 'icons':
                 if type(value) is str:
@@ -165,8 +170,13 @@ def add_logging_level(name, value, method_name=None):
 
     if value == getattr(logging, 'EXCEPT', None):  # needs traceback added
         def logForLevel(self, message='', *args, **kwargs):
+            show = kwargs.pop('show', True)
             if self.isEnabledFor(value):
-                message = (message + ' ▾\n').lstrip() + traceback.format_exc()
+                if show:
+                    message = message.lstrip() + ' ▾\n'
+                    message += traceback.format_exc()
+                else:
+                    message = message.lstrip()
                 self._log(value, message, args, **kwargs)
     else:
         def logForLevel(self, message, *args, **kwargs):
@@ -219,6 +229,7 @@ out.__class__ = Logger      # one way to add call()
 # odd level numbers chosen to avoid commonly configured variations
 add_logging_level('TRACE', 7)
 add_logging_level('NOTE', 27)
+add_logging_level('EXCEPT', logging.ERROR + 3, 'exception')
 add_logging_level('EXCEPT', logging.ERROR + 3, 'exc')
 add_logging_level('FATAL', logging.FATAL)
 level_map_int = {

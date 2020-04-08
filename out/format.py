@@ -49,7 +49,7 @@ if is_fbterm:  # fbterm esc seqs conflict with brace formatting :-/
 
 json_data_search = re.compile(r"(\{|\[|')").search
 xml_data_search = re.compile(r"(<|')").search
-pyt_data_search = re.compile(r"(\(|:|;)").search
+pyt_data_search = re.compile(r"(\{|\[|\(|:|;)").search
 
 
 class ColorFormatter(logging.Formatter):

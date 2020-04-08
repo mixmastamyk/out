@@ -22,7 +22,7 @@ from .themes import (render_themes as _render_themes,
                      render_styles as _render_styles,
                      icons as _icons)
 
-__version__ = '0.72'
+__version__ = '0.73a0'
 
 # Allow string as well as constant access.  Levels will be added below:
 level_map = {
@@ -54,7 +54,7 @@ class Logger(logging.Logger):
             value = kwargs[kwarg]
 
             if kwarg == 'level':
-                self.set_level(value.lower())
+                self.set_level(value)
 
             elif kwarg == 'default_level':
                 self.default_level = level_map.get(value, value)
@@ -145,7 +145,7 @@ class Logger(logging.Logger):
         if type(level) is int:
             super().setLevel(level)
         else:
-            self.setLevel(level_map.get(level, level))
+            self.setLevel(level_map.get(level.lower(), level))
     set_level = setLevel
 
     def __call__(self, message, *args):

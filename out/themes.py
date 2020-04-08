@@ -251,7 +251,14 @@ def render_themes(out_file, fg=None, bg=None, fx=None):
 
     )
     themes['windows_interactive'] = themes['linux_interactive']
+    #~ if os_name == 'nt':     # unicode for Win Terminal support
+        #~ import locale       # exposes display bug - deactivated for now
+        #~ if locale.getpreferredencoding() == 'cp65001':  # utf8
+            #~ themes['windows_interactive']['style'] = styles['norm']
+            #~ themes['windows_interactive']['icons'] = icons['rounded']
+
     themes['windows_production'] = themes['production']
     if is_fbterm:
         themes['linux_interactive']['style'] = styles['reverse_fbterm']
+
     return themes

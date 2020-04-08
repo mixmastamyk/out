@@ -2,6 +2,7 @@
     out - Simple logging with a few fun features.
     © 2018-19, Mike Miller - Released under the LGPL, version 3+.
 '''
+import os
 import env
 
 from console.detection import is_a_tty, choose_palette, get_available_palettes
@@ -18,3 +19,4 @@ def _find_palettes(stream):
     return fg, bg, fx, chosen, is_a_tty(stream)
 
 is_fbterm = (env.TERM == 'fbterm')
+os_name = os.name

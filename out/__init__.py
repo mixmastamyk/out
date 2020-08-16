@@ -22,7 +22,7 @@ from .themes import (render_themes as _render_themes,
                      render_styles as _render_styles,
                      icons as _icons)
 
-__version__ = '0.74a1'
+__version__ = '0.74a2'
 
 # Allow string as well as constant access.  Levels will be added below:
 level_map = {
@@ -67,10 +67,10 @@ class Logger(logging.Logger):
 
             elif kwarg == 'stream':
                 self.handlers[0].stream = value
-                _, _, _, palette, is_a_tty = _find_palettes(value)
+                _, _, _, tlevel, is_a_tty = _find_palettes(value)
                 # probably shouldn't auto configure theme, but it does,
                 # skipping currently
-                _add_handler(value, is_a_tty, palette, theme=None)
+                _add_handler(value, is_a_tty, tlevel, theme=None)
 
             elif kwarg == 'theme':
                 if type(value) is str:
@@ -79,10 +79,10 @@ class Logger(logging.Logger):
                     if value == 'plain':
                         fmtr = logging.Formatter(style='{', **theme)
                     elif value == 'json':
-                        pal = self.handlers[0]._palette
+                        tlvl = self.handlers[0]._term_level
                         if is_fbterm:   hl = False          # doesn't work well
-                        else:           hl = bool(pal)      # highlighting
-                        fmtr = _JSONFormatter(palette=pal, hl=hl, **theme)
+                        else:           hl = bool(tlvl)     # highlighting
+                        fmtr = _JSONFormatter(term_level=tlvl, hl=hl, **theme)
                     else:
                         fmtr =  _ColorFormatter(**theme)
                 elif type(value) is dict:
@@ -216,8 +216,8 @@ def _add_handler(out_file, is_a_tty, level, theme='auto'):
             theme = {}
 
     out.handlers = []  # clear any old
-    _handler._level = level
-    _formatter = _ColorFormatter(hl=hl, level=level, **theme)
+    _handler._term_level = level
+    _formatter = _ColorFormatter(hl=hl, term_level=level, **theme)
     _handler.setFormatter(_formatter)
     out.addHandler(_handler)
 

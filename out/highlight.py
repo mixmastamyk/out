@@ -13,14 +13,16 @@ try:
 except ImportError:
     highlight = get_lexer_by_name = None
 
+from .detection import TerminalLevel
 
-def get_term_formatter(chosen_palette):
+
+def get_term_formatter(level):
     ''' Build formatter according to environment. '''
 
     term_formatter = None
-    if chosen_palette and highlight:
+    if level and highlight:
 
-        if chosen_palette in ('extended', 'truecolor'):
+        if level >= TerminalLevel.ANSI_EXTENDED:
 
             from pygments.formatters import Terminal256Formatter
             from pygments.style import Style
@@ -44,7 +46,7 @@ def get_term_formatter(chosen_palette):
                 }
             term_formatter = Terminal256Formatter(style=OutStyle)
 
-        elif chosen_palette == 'basic':
+        elif level >= TerminalLevel.ANSI_BASIC:
 
             from pygments.formatters import TerminalFormatter
 

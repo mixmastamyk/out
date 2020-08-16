@@ -12,7 +12,7 @@ from .detection import _find_palettes, is_fbterm
 
 # detect environment before loading formatters and themes
 _out_file = sys.stderr
-fg, _, fx, _CHOSEN_PALETTE, _is_a_tty  = _find_palettes(_out_file)
+fg, _, fx, _level, _is_a_tty  = _find_palettes(_out_file)
 
 
 # now we're ready to import these:
@@ -22,7 +22,7 @@ from .themes import (render_themes as _render_themes,
                      render_styles as _render_styles,
                      icons as _icons)
 
-__version__ = '0.73'
+__version__ = '0.74a1'
 
 # Allow string as well as constant access.  Levels will be added below:
 level_map = {
@@ -122,6 +122,7 @@ class Logger(logging.Logger):
         debug('out logging config, version: %r', __version__)
         debug('  .name: {}, id: {}', self.name, hex(id(self)))
         debug('  .level: %s (%s)', level_map_int[level], level)
+        debug('  .propagate: %s', self.propagate)
         debug('  .default_level: %s (%s)',
                    level_map_int[self.default_level], self.default_level)
 
@@ -145,7 +146,7 @@ class Logger(logging.Logger):
         if type(level) is int:
             super().setLevel(level)
         else:
-            self.setLevel(level_map.get(level.lower(), level))
+            super().setLevel(level_map.get(level.lower(), level))
     set_level = setLevel
 
     def __call__(self, message, *args):
@@ -191,10 +192,10 @@ def add_logging_level(name, value, method_name=None):
     setattr(logging, method_name, logToRoot)
 
 
-def _add_handler(out_file, is_a_tty, palette, theme='auto'):
+def _add_handler(out_file, is_a_tty, level, theme='auto'):
     ''' Repeatable handler config. '''
     if is_fbterm:   hl = False          # doesn't work well
-    else:           hl = bool(palette)  # highlighting
+    else:           hl = bool(level)    # highlighting
     _handler = logging.StreamHandler(stream=out_file)
 
     if theme == 'auto':
@@ -215,8 +216,8 @@ def _add_handler(out_file, is_a_tty, palette, theme='auto'):
             theme = {}
 
     out.handlers = []  # clear any old
-    _handler._palette = palette
-    _formatter = _ColorFormatter(hl=hl, palette=palette, **theme)
+    _handler._level = level
+    _formatter = _ColorFormatter(hl=hl, level=level, **theme)
     _handler.setFormatter(_formatter)
     out.addHandler(_handler)
 
@@ -239,7 +240,7 @@ level_map_int = {
 out.warn = out.warning  # fix warn
 out.set_level('note')
 
-_add_handler(_out_file, _is_a_tty, _CHOSEN_PALETTE)
+_add_handler(_out_file, _is_a_tty, _level)
 
 
 # save original module for later, in case it's needed.

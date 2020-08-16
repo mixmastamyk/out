@@ -77,13 +77,13 @@ class ColorFormatter(logging.Formatter):
             fmt=None,
             hl=True,
             hl_formatter=None,
-            palette=None,
+            level=None,
             icons=None,
             lexer='python3',
             style=None,
             template_style='{',
         ):
-        self._theme_style = style if style else themes.render_styles(palette)['norm']
+        self._theme_style = style if style else themes.render_styles(level)['norm']
         self._theme_icons = icons if icons else themes.icons['rounded']
         self._code_indent = code_indent
         self._highlight = self._lexer = None
@@ -91,7 +91,7 @@ class ColorFormatter(logging.Formatter):
             if lexer:
                 self._highlight = highlight.highlight
                 self.set_lexer(lexer)
-            self._hl_fmtr = hl_formatter or highlight.get_term_formatter(palette)
+            self._hl_fmtr = hl_formatter or highlight.get_term_formatter(level)
 
         super().__init__(fmt=fmt, datefmt=datefmt, style=template_style)
 
@@ -170,7 +170,7 @@ class JSONFormatter(logging.Formatter):
 
         (Currently field order requires Python 3.6, but could be backported.)
     '''
-    def __init__(self, datefmt=None, fmt=None, palette=None, hl=True,
+    def __init__(self, datefmt=None, fmt=None, level=None, hl=True,
                  hl_formatter=None):
         self._fields = fmt.split(',')
         from json import dumps
@@ -181,7 +181,7 @@ class JSONFormatter(logging.Formatter):
             if self._highlight:
                 self._lexer = highlight.get_lexer_by_name('JSON')
                 self._hl_formatter = (
-                    hl_formatter or highlight.get_term_formatter(palette)
+                    hl_formatter or highlight.get_term_formatter(level)
                 )
         super().__init__(fmt=fmt, datefmt=datefmt)
 

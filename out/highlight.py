@@ -13,7 +13,7 @@ try:
 except ImportError:
     highlight = get_lexer_by_name = None
 
-from .detection import TerminalLevel
+from .detection import TermLevel
 
 
 def get_term_formatter(level):
@@ -22,7 +22,7 @@ def get_term_formatter(level):
     term_formatter = None
     if level and highlight:
 
-        if level >= TerminalLevel.ANSI_EXTENDED:
+        if level >= TermLevel.ANSI_EXTENDED:
 
             from pygments.formatters import Terminal256Formatter
             from pygments.style import Style
@@ -46,7 +46,7 @@ def get_term_formatter(level):
                 }
             term_formatter = Terminal256Formatter(style=OutStyle)
 
-        elif level >= TerminalLevel.ANSI_BASIC:
+        elif level >= TermLevel.ANSI_BASIC:
 
             from pygments.formatters import TerminalFormatter
 

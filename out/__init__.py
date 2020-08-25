@@ -12,7 +12,7 @@ from .detection import _find_palettes, is_fbterm
 
 # detect environment before loading formatters and themes
 _out_file = sys.stderr
-fg, _, fx, _level, _is_a_tty  = _find_palettes(_out_file)
+fg, bg, fx, _level, _is_a_tty  = _find_palettes(_out_file)
 
 
 # now we're ready to import these:
@@ -22,7 +22,7 @@ from .themes import (render_themes as _render_themes,
                      render_styles as _render_styles,
                      icons as _icons)
 
-__version__ = '0.76'
+__version__ = '0.77a1'
 
 # Allow string as well as constant access.  Levels will be added below:
 level_map = {
@@ -204,7 +204,7 @@ def _add_handler(out_file, is_a_tty, level, theme='auto'):
             _theme_name = 'linux_' + _theme_name
         if os.name == 'nt':
             _theme_name = 'windows_' + _theme_name
-        theme = _render_themes(out_file)[_theme_name]
+        theme = _render_themes(out_file, fg=fg, bg=bg, fx=fx)[_theme_name]
     elif theme is None:
         try:
             fmtr = out.handlers[0].formatter

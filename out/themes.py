@@ -99,7 +99,7 @@ def render_styles(out_file, fg=None, bg=None, fx=None):
 
         Most of the time, this will only be done once.
     '''
-    if not (fg and bg and fx):
+    if not (fg and bg and fx):  # find once
         fg, bg, fx, _CHOSEN_PALETTE, _is_a_tty  = _find_palettes(out_file)
 
     # render styles first
@@ -180,9 +180,9 @@ def render_themes(out_file, fg=None, bg=None, fx=None):
         rendered here with or without escape sequences as needed.
     '''
     if not (fg and bg and fx):
-        fg, _, fx, _CHOSEN_PALETTE, _is_a_tty  = _find_palettes(out_file)
+        fg, bg, fx, _CHOSEN_PALETTE, _is_a_tty  = _find_palettes(out_file)
 
-    styles = render_styles(out_file, fg=fg, fx=fx)
+    styles = render_styles(out_file, fg=fg, bg=bg, fx=fx)
 
     # uggh - fbterm escape sequences conflict with brace formatting :-/
     dark_grey = str(fg.i242)

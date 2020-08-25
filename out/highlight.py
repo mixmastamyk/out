@@ -31,7 +31,7 @@ def get_term_formatter(level):
                 styles = {
                     Comment:                'italic ansibrightblack',
                     Keyword:                'bold #4ac',  # light blue
-                    Keyword.Constant:       'nobold ansicyan',
+                    Keyword.Constant:       'nobold #3aa',  # ansicyan
                     Number:                 'ansigreen',
 
                     Name.Tag:               '#4ac',  # light blue, xml, json

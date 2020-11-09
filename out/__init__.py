@@ -22,7 +22,7 @@ from .themes import (render_themes as _render_themes,
                      render_styles as _render_styles,
                      icons as _icons)
 
-__version__ = '0.77a1'
+__version__ = '0.77a2'
 
 # Allow string as well as constant access.  Levels will be added below:
 level_map = {
@@ -194,8 +194,10 @@ def add_logging_level(name, value, method_name=None):
 
 def _add_handler(out_file, is_a_tty, level, theme='auto'):
     ''' Repeatable handler config. '''
-    if is_fbterm:   hl = False          # doesn't work well
-    else:           hl = bool(level)    # highlighting
+    if is_fbterm:
+        hl = False          # doesn't work well
+    else:
+        hl = level > 1    # highlighting > ANSI_MONOCHROME
     _handler = logging.StreamHandler(stream=out_file)
 
     if theme == 'auto':

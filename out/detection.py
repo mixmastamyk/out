@@ -9,7 +9,7 @@ from console.style import ForegroundPalette, BackgroundPalette, EffectsPalette
 
 def _find_palettes(stream):
     ''' Need to configure palettes manually, since we are checking stderr. '''
-    level = init(stream=stream)
+    level = init(_stream=stream)
     fg = ForegroundPalette(level=level)
     bg = BackgroundPalette(level=level)
     fx = EffectsPalette(level=level)

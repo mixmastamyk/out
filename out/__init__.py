@@ -1,6 +1,6 @@
 '''
     out - Simple logging with a few fun features.
-    © 2018-19, Mike Miller - Released under the LGPL, version 3+.
+    © 2018-2020, Mike Miller - Released under the LGPL, version 3+.
 '''
 import os
 import sys
@@ -22,7 +22,7 @@ from .themes import (render_themes as _render_themes,
                      render_styles as _render_styles,
                      icons as _icons)
 
-__version__ = '0.77'
+__version__ = '0.78'
 
 # Allow string as well as constant access.  Levels will be added below:
 level_map = {

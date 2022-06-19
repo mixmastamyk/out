@@ -18,9 +18,10 @@ demos:
 
 
 publish: test check_readme
-	rm -rf build  # possible wheel bug
-	python3 setup.py sdist bdist_wheel --universal upload
-
+	rm -rf build dist  # possible wheel bug
+	python3 setup.py sdist bdist_wheel --universal
+	# upload
+	twine upload --verbose dist/*
 
 readme.html: readme.rst
 	rst2html.py readme.rst > readme.html

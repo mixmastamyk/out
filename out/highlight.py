@@ -41,7 +41,11 @@ def get_term_formatter(level):
                     Operator.Word:          'bold #4ac',
                     Punctuation:            'nobold #b94',
 
-                    String:                 'ansibrightmagenta',  # amber
+                    #~ String:                 'ansibrightmagenta',
+                    String:                 '#d84',  # med dull amber
+                    #~ String:                 '#f80',  # bright amber
+                    #~ String:                 '#d60',  # dark amber
+                    #~ String:                 'ansiyellow',
                     Generic.String:         'ansired',
                 }
             term_formatter = Terminal256Formatter(style=OutStyle)

@@ -50,12 +50,12 @@ if is_fbterm:  # fbterm esc seqs conflict with brace formatting :-/
 # compile searches for data message highlighting
 json_data_search = re.compile(r'\{|\[|"').search
 xml_data_search = re.compile('<').search
-pyt_data_search = re.compile('''
-    \\{             # literal
+pyt_data_search = re.compile(r'''
+    \{              # literal
         |           #   or
-    [^\033]\\[      # left bracket, not preceded by escape char (skip ANSI)
+    \[              # left bracket
         |           #   or...
-    \\(
+    \(
         |
     :
 ''', re.VERBOSE).search
@@ -136,15 +136,18 @@ class ColorFormatter(logging.Formatter):
         # decide to highlight w/ pygments
         # TODO: Highlight args directly and drop text scan? - didn't work well.
         if self._highlight:
-            match = self.data_search(message, 0, DATA_SEARCH_LIMIT)
-            if match:
-                pos = match.start()
-                front, back = message[:pos], message[pos:]  # Spliten-Sie
-                if front.endswith('\n'):                    # indent data?
-                    back = pformat(record.args)
-                    back = left_indent(back, self._code_indent)
-                back = self._highlight(back, self._lexer, self._hl_fmtr)
-                message = f'{front}{back}'
+            if message.find('\x1b', 0, DATA_SEARCH_LIMIT) > -1:
+                pass  # found escape, avoid ANSI
+            else:
+                match = self.data_search(message, 0, DATA_SEARCH_LIMIT)
+                if match:
+                    pos = match.start()
+                    front, back = message[:pos], message[pos:]  # Spliten-Sie
+                    if front.endswith('\n'):                    # indent data?
+                        back = pformat(record.args)
+                        back = left_indent(back, self._code_indent)
+                    back = self._highlight(back, self._lexer, self._hl_fmtr)
+                    message = f'{front}{back}'
 
         # style the level, icon
         record.message = message

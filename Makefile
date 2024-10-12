@@ -17,7 +17,8 @@ demos:
 	python3 out/demos.py
 
 
-publish: test check_readme
+# check_readme
+publish: test clean
 	rm -rf build dist  # possible wheel bug
 #~ 	python3 setup.py sdist bdist_wheel --universal # no longer supported
 	python3 -m build

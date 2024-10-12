@@ -1,6 +1,6 @@
 '''
     out - Simple logging with a few fun features.
-    © 2018-2020, Mike Miller - Released under the LGPL, version 3+.
+    © 2018-25, Mike Miller - Released under the LGPL, version 3+.
 '''
 import os
 import sys
@@ -22,7 +22,7 @@ from .themes import (render_themes as _render_themes,
                      render_styles as _render_styles,
                      icons as _icons)
 
-__version__ = '0.78a2'
+__version__ = '0.78a3'
 
 # Allow string as well as constant access.  Levels will be added below:
 level_map = {
@@ -45,6 +45,7 @@ class Logger(logging.Logger):
     __path__ = __path__         # allows python3 -m out.demos to work
     __version__ = __version__
     __name__ = __name__
+    __spec__ = None  # needed to make -m happy in recent pythons :-/
 
     def configure(self, **kwargs):
         ''' Convenience function to set a number of parameters on this logger

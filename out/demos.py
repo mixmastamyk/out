@@ -1,6 +1,6 @@
 '''
     out - Simple logging with a few fun features.
-    © 2018-19, Mike Miller - Released under the LGPL, version 3+.
+    © 2018-25, Mike Miller - Released under the LGPL, version 3+.
 '''
 import sys
 import out
@@ -63,8 +63,6 @@ out.trace('trace message: XML: %s', '<xml><tag attr="woot">text</tag></xml><!-- 
 out.configure(lexer='python3')
 out.note('debug message: PyON: %s # hi',
          {'data': [None, True, False, 'hi', 123]})
-#~ # out.note('debug message2: PyON: %(data)s # hi',
-         #~ # {'data': [None, True, False, 'hi', 123]})
 out.note('import foo; [ x for x in y ]')
 print('---------------------------------')
 
@@ -72,7 +70,6 @@ print('---------------------------------')
 print('⏵⏵ test json formatter:')
 out.configure(
     level='info',
-    # theme='plain',
     theme='json',
 )
 out('no explicit level')

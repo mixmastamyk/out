@@ -1,6 +1,6 @@
 '''
     out - Simple logging with a few fun features.
-    © 2018-19, Mike Miller - Released under the LGPL, version 3+.
+    © 2018-25, Mike Miller - Released under the LGPL, version 3+.
 '''
 import sys
 from os.path import dirname, join

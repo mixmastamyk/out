@@ -19,17 +19,18 @@ demos:
 
 publish: test check_readme
 	rm -rf build dist  # possible wheel bug
-	python3 setup.py sdist bdist_wheel --universal
+#~ 	python3 setup.py sdist bdist_wheel --universal # no longer supported
+	python3 -m build
 	# upload
 	twine upload --verbose dist/*
 
 readme.html: readme.rst
-	rst2html.py readme.rst > readme.html
-	refresh.sh Out
+	rst2html readme.rst > readme.html
+	send_refresh.sh Out
 
 
 test:
-	pyflakes *.py out/*.py
+	pyflakes **.py
 
 
 

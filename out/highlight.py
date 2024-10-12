@@ -1,6 +1,6 @@
 '''
     out - Simple logging with a few fun features.
-    © 2018-19, Mike Miller - Released under the LGPL, version 3+.
+    © 2018-25, Mike Miller - Released under the LGPL, version 3+.
 
     Highlighting with Pygments!
 '''
@@ -41,12 +41,12 @@ def get_term_formatter(level):
                     Operator.Word:          'bold #4ac',
                     Punctuation:            'nobold #b94',
 
-                    #~ String:                 'ansibrightmagenta',
-                    String:                 '#d84',  # med dull amber
-                    #~ String:                 '#f80',  # bright amber
-                    #~ String:                 '#d60',  # dark amber
-                    #~ String:                 'ansiyellow',
+                    # not sure about string, hard to find a good warm color
                     Generic.String:         'ansired',
+                    String:                 'ansibrightmagenta',
+                    #~ String:                 '#b00',  # brick red
+                    #~ String:                 '#f80',  # bright amber
+                    #~ String:                 '#d80',  # med amber
                 }
             term_formatter = Terminal256Formatter(style=OutStyle)
 

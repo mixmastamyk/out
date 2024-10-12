@@ -4,7 +4,10 @@ Out
 
 Fun take on logging for non-huge projects—out gets "outta" the way!
 
-(Why's are covered in the background_anchor_ section at the bottom.)
+(Why's are covered in the
+background_anchor_ |
+`Background <#background>`_
+section at the bottom.)
 
 
 Install

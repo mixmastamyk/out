@@ -52,7 +52,7 @@ setup(
     author              = 'Mike Miller',
     keywords            = keywords,
     license             = 'LGPL 3',
-    long_description    = slurp('readme.rst'),
+    long_description    = slurp('README.rst'),
     long_description_content_type = 'text/x-rst',
     packages            = ('out',),
     url                 = 'https://github.com/mixmastamyk/out',

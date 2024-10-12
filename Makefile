@@ -25,8 +25,8 @@ publish: test clean
 	# upload
 	twine upload dist/*
 
-readme.html: readme.rst
-	rst2html readme.rst > readme.html
+readme.html: README.rst
+	rst2html README.rst > readme.html
 	send_refresh.sh Out
 
 

@@ -23,7 +23,7 @@ publish: test clean
 #~ 	python3 setup.py sdist bdist_wheel --universal # no longer supported
 	python3 -m build
 	# upload
-	twine upload --verbose dist/*
+	twine upload dist/*
 
 readme.html: readme.rst
 	rst2html readme.rst > readme.html

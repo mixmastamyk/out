@@ -53,13 +53,14 @@ setup(
     keywords            = keywords,
     license             = 'LGPL 3',
     long_description    = slurp('readme.rst'),
+    long_description_content_type = 'text/x-rst',
     packages            = ('out',),
     url                 = 'https://github.com/mixmastamyk/out',
     version             = get_version('out/__init__.py'),
 
     extras_require      = extras_require,
     install_requires    = install_requires,
-    python_requires     = '>=3.6',
+    python_requires     = '>=3.8',
     setup_requires      = install_requires,
     tests_require       = tests_require,
 

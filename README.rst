@@ -98,7 +98,7 @@ which may be turned on automatically by redirecting ``stderr``:
 
 .. code-block:: shell
 
-    ⏵ python3 script.py |& cat  # bash, for fish use: ^|
+    ⏵ python3 script.py |& cat  # bash, for fish use: &|
     2018-09-10 17:18:19.123 ✗ ERROR main/func:1 Kerblooey!
 
 

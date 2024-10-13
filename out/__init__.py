@@ -171,7 +171,7 @@ def add_logging_level(name, value, method_name=None):
     level_map[name.lower()] = value
 
     if value == getattr(logging, 'EXCEPT', None):  # needs traceback added
-        def logForLevel(self, message='', *args, **kwargs):
+        def log_for_level(self, message='', *args, **kwargs):
             show = kwargs.pop('show', True)
             if self.isEnabledFor(value):
                 if show:
@@ -179,18 +179,18 @@ def add_logging_level(name, value, method_name=None):
                     message += traceback.format_exc()
                 else:
                     message = message.lstrip()
-                self._log(value, message, args, **kwargs)
+                self._log(value, message, args, stacklevel=2, **kwargs)
     else:
-        def logForLevel(self, message, *args, **kwargs):
+        def log_for_level(self, message, *args, **kwargs):
             if self.isEnabledFor(value):
-                self._log(value, message, args, **kwargs)
+                self._log(value, message, args, stacklevel=2, **kwargs)
 
-    def logToRoot(message, *args, **kwargs):  # may not need
-        logging.log(value, message, *args, **kwargs)
+    #~ def logToRoot(message, *args, **kwargs):  # may not need
+        #~ logging.log(value, message, *args, **kwargs)
 
     # set functions
-    setattr(logging.getLoggerClass(), method_name, logForLevel)
-    setattr(logging, method_name, logToRoot)
+    setattr(logging.getLoggerClass(), method_name, log_for_level)
+    #~ setattr(logging, method_name, logToRoot)
 
 
 def _add_handler(out_file, is_a_tty, level, theme='auto'):

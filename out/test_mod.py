@@ -2,7 +2,6 @@
     Demo of standard module logging.
     © 2018-25, Mike Miller - Released under the LGPL, version 3+.
 '''
-
 import logging
 
 log = logging.getLogger(__name__)

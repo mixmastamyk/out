@@ -27,6 +27,12 @@ def test_levels(full=True):
 
 
 out.warn('begin...')
+print('⏵⏵ hide, should be nothing here:')
+out.trace('trace msg: %s', 'Absurdly voluminous details…')
+out.debug('debug message')
+out.info('note message - Important positive feedback to remember.')
+print('---------------------------------')
+
 print('⏵⏵ print std config:')
 out.configure(
     level='trace',   # needs to go before to allow console log to be viewed!

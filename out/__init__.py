@@ -22,7 +22,7 @@ from .themes import (render_themes as _render_themes,
                      render_styles as _render_styles,
                      icons as _icons)
 
-__version__ = '0.79'
+__version__ = '0.80a1'
 
 # Allow string as well as constant access.  Levels will be added below:
 level_map = {
@@ -185,12 +185,7 @@ def add_logging_level(name, value, method_name=None):
             if self.isEnabledFor(value):
                 self._log(value, message, args, stacklevel=2, **kwargs)
 
-    #~ def logToRoot(message, *args, **kwargs):  # may not need
-        #~ logging.log(value, message, *args, **kwargs)
-
-    # set functions
     setattr(logging.getLoggerClass(), method_name, log_for_level)
-    #~ setattr(logging, method_name, logToRoot)
 
 
 def _add_handler(out_file, is_a_tty, level, theme='auto'):

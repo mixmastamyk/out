@@ -134,20 +134,15 @@ class ColorFormatter(logging.Formatter):
             message = record.msg.format(*record.args)
 
         # decide to highlight w/ pygments
-        # TODO: Highlight args directly and drop text scan? - didn't work well.
         if self._highlight:
-            if message.find('\x1b', 0, DATA_SEARCH_LIMIT) > -1:
-                pass  # found escape, avoid ANSI
-            else:
-                match = self.data_search(message, 0, DATA_SEARCH_LIMIT)
-                if match:
-                    pos = match.start()
-                    front, back = message[:pos], message[pos:]  # Spliten-Sie
-                    if front.endswith('\n'):                    # indent data?
-                        back = pformat(record.args)
-                        back = left_indent(back, self._code_indent)
-                    back = self._highlight(back, self._lexer, self._hl_fmtr)
-                    message = f'{front}{back}'
+            if match := self.data_search(message, 0, DATA_SEARCH_LIMIT):
+                pos = match.start()
+                front, back = message[:pos], message[pos:]  # Spliten-Sie
+                if front.endswith('\n'):                    # indent data?
+                    back = pformat(record.args)
+                    back = left_indent(back, self._code_indent)
+                back = self._highlight(back, self._lexer, self._hl_fmtr)
+                message = f'{front}{back}'
 
         # style the level, icon
         record.message = message

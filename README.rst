@@ -411,9 +411,9 @@ Performance
 -----------------
 
 out does quite a few things,
-but it tries not to do any duplicate work or anything stupid.
+but it tries not to do any duplicate work or anything excessively stupid.
 It takes 25 microseconds to log a simple message,
-or about 90 for a complex one on a newer machine.
+or about 90 for a complex highlighted one on a newer machine.
 Had to run a loop several thousand times (only logging) before it added up to
 a noticeable delay.
 

@@ -46,4 +46,4 @@ try:
             pr.print_stats(sort='cumulative')
 
 except BrokenPipeError as err:
-    pass
+    err

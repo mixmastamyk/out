@@ -22,7 +22,7 @@ from .themes import (render_themes as _render_themes,
                      render_styles as _render_styles,
                      icons as _icons)
 
-__version__ = '0.80'
+__version__ = '0.81b1'
 
 # Allow string as well as constant access.  Levels will be added below:
 level_map = {

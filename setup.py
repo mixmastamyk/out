@@ -14,7 +14,7 @@ if sys.version_info.major < 3:
 # additional metadata, requirements
 keywords = 'log logging events levels color terminal console standard out err '
 install_requires = (
-    'console>0.9902',
+    'console>=0.9912',
 )
 tests_require = ('pyflakes', 'readme_renderer'),
 extras_require = dict(
@@ -50,7 +50,7 @@ setup(
     author_email        = 'mixmastamyk@github.com',
     author              = 'Mike Miller',
     keywords            = keywords,
-    license             = 'LGPL 3',
+    license             = 'LGPL-3.0-or-later',
     long_description    = slurp('README.rst'),
     long_description_content_type = 'text/x-rst',
     packages            = ('out',),
